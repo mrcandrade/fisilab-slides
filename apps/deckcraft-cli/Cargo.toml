@@ -5,12 +5,13 @@ edition.workspace = true
 license.workspace = true
 description = "DeckCraft on the command line: render, convert, run commands, inspect, and serve MCP"
 publish = false
+default-run = "fisislides-cli"
 
 [lints]
 workspace = true
 
 [[bin]]
-name = "deckcraft-cli"
+name = "fisislides-cli"
 path = "src/main.rs"
 
 [dependencies]

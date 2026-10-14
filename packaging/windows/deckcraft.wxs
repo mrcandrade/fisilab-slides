@@ -1,79 +1,82 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  DeckCraft MSI (WiX Toolset v5: `dotnet tool install -g wix`). Built by package.ps1:
+  FisiSlides MSI (WiX Toolset v5: `dotnet tool install -g wix`). Built by package.ps1:
 
     wix build deckcraft.wxs -arch x64 -d Version=1.2.3 -d BinDir=... -d IconPath=... -o out.msi
 
   Per-machine install into Program Files, a Start Menu shortcut, `.deckcraft` owned by
-  DeckCraft, and DeckCraft offered under "Open with" for .pptx/.potx/.ppsx (without taking over
+  FisiSlides, and FisiSlides offered under "Open with" for .pptx/.potx/.ppsx (without taking over
   the user's default app for them).
 
-  UpgradeCode is fixed for DeckCraft forever (playbook §6); never change it.
+  Suíte FisiLab: FisiSlides has its own UpgradeCode and component GUIDs (never DeckCraft's, so it
+  neither upgrades nor removes an upstream DeckCraft install); never change them. The suite's
+  official installer is an Inno Setup one built by the suite's orchestrator; this MSI is kept
+  working for reference.
 -->
 <Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
   <Package
-      Name="DeckCraft"
-      Manufacturer="Learning Machines LLC"
+      Name="FisiSlides"
+      Manufacturer="FisiLab — LARFIC/UFRGS"
       Version="$(var.Version)"
-      UpgradeCode="6F9C69E7-7825-40D2-BF26-C274DA676425"
+      UpgradeCode="2B3056DB-EAB4-4868-AAF4-AA3D980D3835"
       Scope="perMachine"
       Compressed="yes"
       Language="1033">
-    <SummaryInformation Description="DeckCraft presentations and slide shows" Manufacturer="Learning Machines LLC" />
+    <SummaryInformation Description="FisiSlides — Apresentações (Suíte FisiLab)" Manufacturer="FisiLab — LARFIC/UFRGS" />
     <!-- Same-version upgrades let successive pre-releases of one X.Y.Z replace each other
          (MSI versions are numeric, so 1.2.3-rc.1 and 1.2.3-rc.2 are both 1.2.3). -->
     <MajorUpgrade AllowSameVersionUpgrades="yes"
-        DowngradeErrorMessage="A newer version of DeckCraft is already installed." />
+        DowngradeErrorMessage="Uma versão mais nova do FisiSlides já está instalada." />
     <MediaTemplate EmbedCab="yes" CompressionLevel="high" />
 
-    <Icon Id="DeckcraftIcon.ico" SourceFile="$(var.IconPath)" />
-    <Property Id="ARPPRODUCTICON" Value="DeckcraftIcon.ico" />
-    <Property Id="ARPURLINFOABOUT" Value="https://getartcraft.com/apps/deckcraft" />
-    <Property Id="ARPURLUPDATEINFO" Value="https://getartcraft.com/apps/deckcraft" />
-    <Property Id="ARPHELPLINK" Value="https://discord.gg/artcraft" />
+    <Icon Id="FisiSlidesIcon.ico" SourceFile="$(var.IconPath)" />
+    <Property Id="ARPPRODUCTICON" Value="FisiSlidesIcon.ico" />
+    <Property Id="ARPURLINFOABOUT" Value="https://github.com/mrcandrade/larfic/tree/main/suite-fisilab" />
+    <Property Id="ARPURLUPDATEINFO" Value="https://github.com/mrcandrade/fisislides/releases" />
+    <Property Id="ARPHELPLINK" Value="https://github.com/mrcandrade/fisislides/issues" />
 
     <StandardDirectory Id="ProgramFiles6432Folder">
-      <Directory Id="INSTALLFOLDER" Name="DeckCraft" />
+      <Directory Id="INSTALLFOLDER" Name="FisiSlides" />
     </StandardDirectory>
     <StandardDirectory Id="ProgramMenuFolder" />
 
-    <Feature Id="Main" Title="DeckCraft" Level="1">
-      <ComponentGroupRef Id="DeckcraftFiles" />
+    <Feature Id="Main" Title="FisiSlides" Level="1">
+      <ComponentGroupRef Id="FisiSlidesFiles" />
     </Feature>
   </Package>
 
   <Fragment>
-    <ComponentGroup Id="DeckcraftFiles" Directory="INSTALLFOLDER">
-      <Component Id="DeckcraftApp" Guid="D87EA444-41A4-4C19-922E-66D1A29461FF">
-        <File Id="DeckcraftExe" Source="$(var.BinDir)\deckcraft.exe" KeyPath="yes">
-          <Shortcut Id="StartMenuShortcut" Directory="ProgramMenuFolder" Name="DeckCraft"
-              Description="DeckCraft presentations and slide shows" WorkingDirectory="INSTALLFOLDER" Advertise="yes"
-              Icon="DeckcraftIcon.ico" IconIndex="0" />
+    <ComponentGroup Id="FisiSlidesFiles" Directory="INSTALLFOLDER">
+      <Component Id="FisiSlidesApp" Guid="3CB23281-E85F-4159-819F-DE6B5C60B292">
+        <File Id="FisiSlidesExe" Source="$(var.BinDir)\fisislides.exe" KeyPath="yes">
+          <Shortcut Id="StartMenuShortcut" Directory="ProgramMenuFolder" Name="FisiSlides"
+              Description="FisiSlides — Apresentações (Suíte FisiLab)" WorkingDirectory="INSTALLFOLDER" Advertise="yes"
+              Icon="FisiSlidesIcon.ico" IconIndex="0" />
         </File>
 
-        <!-- .deckcraft: DeckCraft's own format. -->
-        <ProgId Id="DeckCraft.Presentation" Description="DeckCraft Presentation" Icon="DeckcraftExe" IconIndex="0">
+        <!-- .deckcraft: the DeckCraft/FisiSlides format (extension unchanged for compatibility). -->
+        <ProgId Id="FisiLab.FisiSlides.Presentation" Description="Apresentação do FisiSlides" Icon="FisiSlidesExe" IconIndex="0">
           <Extension Id="deckcraft" ContentType="application/x-deckcraft">
-            <Verb Id="open" Command="Open" TargetFile="DeckcraftExe" Argument="&quot;%1&quot;" />
+            <Verb Id="open" Command="Abrir" TargetFile="FisiSlidesExe" Argument="&quot;%1&quot;" />
           </Extension>
         </ProgId>
 
         <!-- "Open with" for PowerPoint formats, without becoming the default. -->
-        <RegistryValue Root="HKLM" Key="Software\Classes\Applications\deckcraft.exe" Name="FriendlyAppName" Value="DeckCraft" Type="string" />
-        <RegistryValue Root="HKLM" Key="Software\Classes\Applications\deckcraft.exe\shell\open\command" Value="&quot;[#DeckcraftExe]&quot; &quot;%1&quot;" Type="string" />
-        <RegistryValue Root="HKLM" Key="Software\Classes\Applications\deckcraft.exe\SupportedTypes" Name=".deckcraft" Value="" Type="string" />
-        <RegistryValue Root="HKLM" Key="Software\Classes\Applications\deckcraft.exe\SupportedTypes" Name=".pptx" Value="" Type="string" />
-        <RegistryValue Root="HKLM" Key="Software\Classes\Applications\deckcraft.exe\SupportedTypes" Name=".potx" Value="" Type="string" />
-        <RegistryValue Root="HKLM" Key="Software\Classes\Applications\deckcraft.exe\SupportedTypes" Name=".ppsx" Value="" Type="string" />
-        <RegistryValue Root="HKLM" Key="Software\Classes\.pptx\OpenWithProgids" Name="DeckCraft.Presentation" Value="" Type="string" />
-        <RegistryValue Root="HKLM" Key="Software\Classes\.potx\OpenWithProgids" Name="DeckCraft.Presentation" Value="" Type="string" />
-        <RegistryValue Root="HKLM" Key="Software\Classes\.ppsx\OpenWithProgids" Name="DeckCraft.Presentation" Value="" Type="string" />
+        <RegistryValue Root="HKLM" Key="Software\Classes\Applications\fisislides.exe" Name="FriendlyAppName" Value="FisiSlides" Type="string" />
+        <RegistryValue Root="HKLM" Key="Software\Classes\Applications\fisislides.exe\shell\open\command" Value="&quot;[#FisiSlidesExe]&quot; &quot;%1&quot;" Type="string" />
+        <RegistryValue Root="HKLM" Key="Software\Classes\Applications\fisislides.exe\SupportedTypes" Name=".deckcraft" Value="" Type="string" />
+        <RegistryValue Root="HKLM" Key="Software\Classes\Applications\fisislides.exe\SupportedTypes" Name=".pptx" Value="" Type="string" />
+        <RegistryValue Root="HKLM" Key="Software\Classes\Applications\fisislides.exe\SupportedTypes" Name=".potx" Value="" Type="string" />
+        <RegistryValue Root="HKLM" Key="Software\Classes\Applications\fisislides.exe\SupportedTypes" Name=".ppsx" Value="" Type="string" />
+        <RegistryValue Root="HKLM" Key="Software\Classes\.pptx\OpenWithProgids" Name="FisiLab.FisiSlides.Presentation" Value="" Type="string" />
+        <RegistryValue Root="HKLM" Key="Software\Classes\.potx\OpenWithProgids" Name="FisiLab.FisiSlides.Presentation" Value="" Type="string" />
+        <RegistryValue Root="HKLM" Key="Software\Classes\.ppsx\OpenWithProgids" Name="FisiLab.FisiSlides.Presentation" Value="" Type="string" />
 
-        <RegistryValue Root="HKLM" Key="Software\Microsoft\Windows\CurrentVersion\App Paths\deckcraft.exe" Value="[#DeckcraftExe]" Type="string" />
+        <RegistryValue Root="HKLM" Key="Software\Microsoft\Windows\CurrentVersion\App Paths\fisislides.exe" Value="[#FisiSlidesExe]" Type="string" />
       </Component>
 
-      <Component Id="DeckcraftCli">
-        <File Id="DeckcraftCliExe" Source="$(var.BinDir)\deckcraft-cli.exe" KeyPath="yes" />
+      <Component Id="FisiSlidesCli">
+        <File Id="FisiSlidesCliExe" Source="$(var.BinDir)\fisislides-cli.exe" KeyPath="yes" />
       </Component>
     </ComponentGroup>
   </Fragment>

@@ -1,7 +1,7 @@
 //! Dialogs (Insert Table, Slide Size, Header & Footer, Hyperlink, Set Up Show, Zoom, …) and the
 //! About window. The start screen is File › Home (`backstage.rs`).
 
-use egui::{Align2, Color32, CornerRadius, Rect, Sense, Stroke, Ui, pos2, vec2};
+use egui::{Align2, Color32, CornerRadius, Rect, Sense, Ui, pos2, vec2};
 use serde_json::{Value, json};
 
 use crate::SlideApp;
@@ -43,7 +43,7 @@ fn title(id: &str) -> &'static str {
         "renameShape" => "Rename",
         "renameLayout" => "Rename Layout",
         "paragraph" => "Paragraph",
-        "about" => "About DeckCraft",
+        "about" => "About FisiSlides",
         "preferences" => "Preferences",
         "export" => "Export",
         "symbol" => "Symbol",
@@ -55,8 +55,8 @@ fn title(id: &str) -> &'static str {
         "chartData" => "Chart Data",
         "trim" => "Trim Media",
         "smartart" => "Choose a SmartArt Graphic",
-        "quit" => "DeckCraft",
-        _ => "DeckCraft",
+        "quit" => crate::APP_NAME,
+        _ => crate::APP_NAME,
     }
 }
 
@@ -703,17 +703,20 @@ fn body(app: &mut SlideApp, ui: &mut Ui, d: &mut Dialog) -> bool {
                     ui.set_max_height(380.0);
                     if tab == "models" { crate::credits::models_ui(ui) } else { crate::credits::contributors_ui(ui) }
                 }
-                _ => about(app, ui),
+                _ => {
+                    if about(app, ui) {
+                        // The suite's About window replaces this one.
+                        let _ = app.run("help.fisilab", json!({}));
+                        return true;
+                    }
+                }
             }
             let (ok, _) = buttons(ui, "Close");
             ok
         }
         "preferences" => {
             ui.label(egui::RichText::new("General").font(theme::bold(13.0)));
-            let mut dark = app.ui.brightness == theme::Brightness::Dark;
-            if ui.checkbox(&mut dark, "Dark appearance").changed() {
-                let _ = app.run("view.dark", json!({"on": dark}));
-            }
+            theme_picker(app, ui, "preferences_theme", 200.0);
             let mut scale = app.ui.ui_scale;
             if ui.add(egui::Slider::new(&mut scale, 0.75..=1.75).text("Interface size")).changed() {
                 app.ui.ui_scale = scale;
@@ -780,22 +783,56 @@ fn pretty_equation(s: &str) -> String {
     out.replace("sqrt", "√").replace("<=", "≤").replace(">=", "≥").replace("!=", "≠").replace("pi", "π").replace("+-", "±")
 }
 
-pub fn about(_app: &mut SlideApp, ui: &mut Ui) {
+/// The About tab: FisiSlides, its origin and the suite's links. True when "Sobre a Suíte FisiLab"
+/// was clicked.
+pub fn about(_app: &mut SlideApp, ui: &mut Ui) -> bool {
     let t = Tokens::get(ui.ctx());
+    let mut suite = false;
     ui.vertical_centered(|ui| {
         let (r, _) = ui.allocate_exact_size(vec2(64.0, 64.0), Sense::hover());
         paint_logo(ui.painter(), r);
-        ui.label(egui::RichText::new("DeckCraft").font(theme::bold(22.0)));
+        ui.label(egui::RichText::new(crate::APP_NAME).font(theme::bold(22.0)));
         ui.label(egui::RichText::new(version_line()).color(t.text_dim));
         ui.add_space(6.0);
-        ui.label("Presentations and slide shows, rebuilt from scratch in pure Rust.");
-        ui.label("An open-source, clean-room project. Not affiliated with Microsoft.");
+        ui.label(format!("{} · Suíte FisiLab — LARFIC · UFRGS", crate::APP_INFO.tagline));
+        ui.label("Versão modificada do DeckCraft, um projeto aberto e independente (clean-room).");
+        ui.label("Não é afiliado à Microsoft.");
         ui.add_space(6.0);
-        ui.hyperlink_to("Join our community on Discord", deckcraft_engine::links::DISCORD);
-        ui.hyperlink_to("getartcraft.com/apps/deckcraft", deckcraft_engine::links::APP_PAGE);
-        ui.hyperlink_to("Source on GitHub", deckcraft_engine::links::GITHUB);
+        suite = suite_links(ui);
         ui.add_space(6.0);
-        ui.label(egui::RichText::new("MIT OR Apache-2.0 · © 2026 ArtCraft Team and the DeckCraft contributors").size(11.0).color(t.text_faint));
+        ui.label(
+            egui::RichText::new("MIT OR Apache-2.0 · Baseado no DeckCraft (© 2026 ArtCraft Team e contribuidores do DeckCraft)")
+                .size(11.0)
+                .color(t.text_faint),
+        );
+        ui.label(egui::RichText::new("Modificações © 2026 FisiLab — LARFIC/UFRGS").size(11.0).color(t.text_faint));
+    });
+    suite
+}
+
+/// The Suíte FisiLab links (suite site, manifesto, original project, issues) and a "Sobre a Suíte
+/// FisiLab" button: true when the button was clicked.
+pub fn suite_links(ui: &mut Ui) -> bool {
+    let t = Tokens::get(ui.ctx());
+    let clicked = ui
+        .add(egui::Button::new(egui::RichText::new(fisilab_brand::ABOUT_MENU_LABEL).color(t.accent_text)).fill(t.accent))
+        .clicked();
+    ui.hyperlink_to("Site da Suíte FisiLab", deckcraft_engine::links::SUITE);
+    ui.hyperlink_to("Manifesto pelas tecnologias livres", deckcraft_engine::links::MANIFESTO);
+    ui.hyperlink_to("Projeto original (DeckCraft)", deckcraft_engine::links::UPSTREAM);
+    ui.hyperlink_to("Reportar um problema", deckcraft_engine::links::ISSUES);
+    clicked
+}
+
+/// The interface theme picker (UFRGS Noite, UFRGS Dia, and the original light and dark).
+pub fn theme_picker(app: &mut SlideApp, ui: &mut Ui, salt: &str, width: f32) {
+    let cur = app.ui.brightness;
+    egui::ComboBox::from_id_salt(salt).width(width).selected_text(cur.label()).show_ui(ui, |ui| {
+        for b in theme::Brightness::ALL {
+            if ui.selectable_label(cur == b, b.label()).clicked() {
+                let _ = app.run("view.theme", json!({"theme": b.id()}));
+            }
+        }
     });
 }
 
@@ -814,18 +851,28 @@ pub fn version_line() -> String {
     s
 }
 
-/// DeckCraft's mark, drawn in code: a slide card with a play triangle in our orange.
+/// The FisiSlides icon (`assets/fisilab/fisislides-128.png`), decoded once and kept as a texture.
 pub fn paint_logo(p: &egui::Painter, r: Rect) {
-    let orange = Color32::from_rgb(0xF2, 0x6B, 0x1D);
-    let deep = Color32::from_rgb(0xC2, 0x4E, 0x14);
-    let card = r.shrink(r.width() * 0.08);
-    p.rect_filled(card.translate(vec2(r.width() * 0.04, r.width() * 0.05)), CornerRadius::same((r.width() * 0.14) as u8), deep);
-    p.rect_filled(card, CornerRadius::same((r.width() * 0.14) as u8), orange);
-    let c = card.center();
-    let s = card.width() * 0.22;
-    p.add(egui::Shape::convex_polygon(
-        vec![pos2(c.x - s * 0.7, c.y - s), pos2(c.x + s, c.y), pos2(c.x - s * 0.7, c.y + s)],
-        Color32::WHITE,
-        Stroke::NONE,
-    ));
+    let ctx = p.ctx();
+    let id = egui::Id::new("fisislides-logo");
+    let tex = ctx.data(|d| d.get_temp::<Option<egui::TextureHandle>>(id)).unwrap_or_else(|| {
+        let png: &[u8] = include_bytes!("../../../assets/fisilab/fisislides-128.png");
+        let tex = deckcraft_render::decode_image(png).map(|img| {
+            let size = [img.width() as usize, img.height() as usize];
+            let image = egui::ColorImage::from_rgba_unmultiplied(size, img.as_raw());
+            ctx.load_texture("fisislides-logo", image, egui::TextureOptions::LINEAR)
+        });
+        ctx.data_mut(|d| d.insert_temp(id, tex.clone()));
+        tex
+    });
+    match tex {
+        Some(tex) => {
+            p.image(tex.id(), r, Rect::from_min_max(pos2(0.0, 0.0), pos2(1.0, 1.0)), Color32::WHITE);
+        }
+        None => {
+            // Undecodable (never, for the embedded file): a plain card in the accent.
+            let t = Tokens::get(ctx);
+            p.rect_filled(r.shrink(r.width() * 0.08), CornerRadius::same((r.width() * 0.14) as u8), t.accent);
+        }
+    }
 }

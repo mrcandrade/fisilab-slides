@@ -208,7 +208,7 @@ impl Backstage {
 /// Save As and Change File Type: (id for [`SlideApp::export_as`], label, detail).
 pub const SAVE_TYPES: [(&str, &str, &str); 6] = [
     ("pptx", "PowerPoint Presentation (*.pptx)", "Opens in PowerPoint and other presentation apps"),
-    ("deckcraft", "DeckCraft Presentation (*.deckcraft)", "DeckCraft's own format: everything is kept"),
+    ("deckcraft", "FisiSlides Presentation (*.deckcraft)", "FisiSlides' own format: everything is kept"),
     ("pdf", "PDF (*.pdf)", "A fixed copy that keeps its layout on any device"),
     ("outline", "Outline (*.txt)", "The slide titles and bullet text as plain text"),
     ("png", "PNG Picture (*.png)", "The current slide as a picture"),
@@ -523,7 +523,7 @@ fn new_tiles(app: &mut SlideApp, ui: &mut Ui, query: &str, limit: usize, blank: 
             shown += 1;
         }
         if sample && shown < limit {
-            let th = deckcraft_model::theme::builtin_themes().into_iter().find(|t| t.name == "DeckCraft");
+            let th = deckcraft_model::theme::builtin_themes().into_iter().find(|t| t.name == "FisiSlides");
             if tile(ui, "Sample deck: Northern Lights", th.as_ref(), false).clicked()
                 && let Err(e) = deckcraft_engine::sample::open_sample(&mut app.session)
             {
@@ -634,7 +634,7 @@ fn home(app: &mut SlideApp, ui: &mut Ui, bs: &mut Backstage, out: &mut Outcome) 
     ui.horizontal(|ui| {
         let (r, _) = ui.allocate_exact_size(vec2(36.0, 36.0), Sense::hover());
         crate::dialogs::paint_logo(ui.painter(), r);
-        ui.label(RichText::new("DeckCraft").font(theme::bold(24.0)).color(t.text));
+        ui.label(RichText::new(crate::APP_NAME).font(theme::bold(24.0)).color(t.text));
     });
     ui.add_space(18.0);
     ui.horizontal(|ui| {
@@ -665,7 +665,13 @@ fn home(app: &mut SlideApp, ui: &mut Ui, bs: &mut Backstage, out: &mut Outcome) 
         });
     }
     ui.add_space(30.0);
-    ui.hyperlink_to("Join the ArtCraft community on Discord", deckcraft_engine::links::DISCORD);
+    ui.horizontal_wrapped(|ui| {
+        if ui.button(fisilab_brand::ABOUT_MENU_LABEL).clicked() {
+            let _ = app.run("help.fisilab", json!({}));
+        }
+        ui.hyperlink_to("Site da Suíte FisiLab", deckcraft_engine::links::SUITE);
+        ui.hyperlink_to("Manifesto pelas tecnologias livres", deckcraft_engine::links::MANIFESTO);
+    });
 }
 
 /// New: a blank presentation, then every theme with a search box.
@@ -925,9 +931,9 @@ fn print(app: &mut SlideApp, ui: &mut Ui, bs: &mut Backstage) {
             dim(
                 ui,
                 if app.services.pick_save.is_some() {
-                    "DeckCraft prints through a PDF: it opens in your PDF viewer, where you choose the printer."
+                    "FisiSlides prints through a PDF: it opens in your PDF viewer, where you choose the printer."
                 } else {
-                    "DeckCraft prints through a PDF: it downloads, ready to print from your browser or PDF viewer."
+                    "FisiSlides prints through a PDF: it downloads, ready to print from your browser or PDF viewer."
                 },
             );
             ui.add_space(14.0);
@@ -1193,7 +1199,7 @@ fn bullets(ui: &mut Ui, items: &[&str]) {
     ui.add_space(10.0);
 }
 
-/// Account: the interface's appearance and what DeckCraft is. DeckCraft has no accounts, so
+/// Account: the interface's appearance and what FisiSlides is. FisiSlides has no accounts, so
 /// there is nothing to sign in to.
 fn account(app: &mut SlideApp, ui: &mut Ui) {
     let t = Tokens::get(ui.ctx());
@@ -1201,17 +1207,10 @@ fn account(app: &mut SlideApp, ui: &mut Ui) {
         ui.vertical(|ui| {
             ui.set_width(340.0);
             heading(ui, "Appearance");
-            let dark = app.ui.brightness == theme::Brightness::Dark;
-            egui::ComboBox::from_id_salt("backstage_appearance").width(260.0).selected_text(if dark { "Dark" } else { "Light" }).show_ui(ui, |ui| {
-                for (on, label) in [(false, "Light"), (true, "Dark")] {
-                    if ui.selectable_label(dark == on, label).clicked() {
-                        let _ = app.run("view.dark", json!({"on": on}));
-                    }
-                }
-            });
+            crate::dialogs::theme_picker(app, ui, "backstage_appearance", 260.0);
             ui.add_space(16.0);
             heading(ui, "User Information");
-            dim(ui, "DeckCraft has no accounts: there is nothing to sign in to, and your presentations stay on your device.");
+            dim(ui, "FisiSlides has no accounts: there is nothing to sign in to, and your presentations stay on your device.");
         });
         ui.add_space(40.0);
         ui.vertical(|ui| {
@@ -1219,23 +1218,25 @@ fn account(app: &mut SlideApp, ui: &mut Ui) {
             ui.horizontal(|ui| {
                 let (r, _) = ui.allocate_exact_size(vec2(40.0, 40.0), Sense::hover());
                 crate::dialogs::paint_logo(ui.painter(), r);
-                ui.label(RichText::new("DeckCraft").font(theme::bold(24.0)).color(t.text));
+                ui.label(RichText::new(crate::APP_NAME).font(theme::bold(24.0)).color(t.text));
             });
             dim(ui, &crate::dialogs::version_line());
-            dim(ui, "Open source under MIT OR Apache-2.0. Not affiliated with Microsoft.");
+            dim(ui, "Software livre (MIT OR Apache-2.0), baseado no DeckCraft. Não é afiliado à Microsoft.");
+            dim(ui, "Suíte FisiLab — LARFIC · UFRGS, em parceria com o CTA — Centro de Tecnologia Acadêmica.");
             ui.add_space(14.0);
             if task(
                 ui,
                 Icon::Help,
-                "About DeckCraft",
-                "About DeckCraft",
+                "About FisiSlides",
+                "About FisiSlides",
                 "The version, the people and models who built it, and where to find us.",
                 true,
             ) {
                 let _ = app.run("app.about", json!({}));
             }
-            ui.hyperlink_to("Join our community on Discord", deckcraft_engine::links::DISCORD);
-            ui.hyperlink_to("Source on GitHub", deckcraft_engine::links::GITHUB);
+            if crate::dialogs::suite_links(ui) {
+                let _ = app.run("help.fisilab", json!({}));
+            }
         });
     });
 }

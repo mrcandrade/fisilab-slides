@@ -36,6 +36,20 @@ use serde_json::{Value, json};
 
 pub use control::{ControlRequest, ControlResponse};
 
+/// What the Suíte FisiLab About window and splash say about this app.
+pub const APP_INFO: fisilab_brand::AppInfo = fisilab_brand::AppInfo {
+    name: "FisiSlides",
+    tagline: "Apresentações",
+    equivalent: "Microsoft PowerPoint",
+    version: env!("CARGO_PKG_VERSION"),
+    upstream_name: "DeckCraft",
+    upstream_url: "https://github.com/storytold/deckcraft",
+    upstream_copyright: "© 2026 ArtCraft Team e contribuidores do DeckCraft",
+};
+
+/// The product name shown in the interface.
+pub const APP_NAME: &str = APP_INFO.name;
+
 pub type ReadFn = Box<dyn Fn(&str) -> Result<Vec<u8>, String>>;
 pub type WriteFn = Box<dyn FnMut(&str, &[u8]) -> Result<(), String>>;
 pub type PickFn = Box<dyn FnMut(&str) -> Option<String>>;
@@ -107,7 +121,7 @@ pub struct UiState {
 impl Default for UiState {
     fn default() -> Self {
         UiState {
-            brightness: theme::Brightness::Light,
+            brightness: theme::Brightness::default(),
             tab: "Home".into(),
             ribbon_collapsed: false,
             view: ViewMode::Normal,
@@ -150,6 +164,7 @@ pub const UI_COMMANDS: &[(&str, &str, Option<&str>, &str)] = &[
     ("view.tab", "Ribbon Tab", None, "{tab}"),
     ("view.collapseRibbon", "Collapse the Ribbon", Some("Cmd+F1"), "{}"),
     ("view.dark", "Dark Mode", None, "{on?: bool}"),
+    ("view.theme", "Tema da interface", None, "{theme: ufrgsNoite|ufrgsDia|light|dark}"),
     ("view.grayscale", "Grayscale", None, "{on?: bool}"),
     ("show.start", "Slide Show", Some("F5"), "{from?: index}"),
     ("show.presenter", "Presenter View", None, "{on?: bool}"),
@@ -158,7 +173,8 @@ pub const UI_COMMANDS: &[(&str, &str, Option<&str>, &str)] = &[
     ("app.backstage", "File", Some("Alt+F"), "{page?: home|new|open|info|saveAs|print|export|account, on?: bool}"),
     ("app.closePresentation", "Close", Some("Cmd+W"), "{}"),
     ("app.print", "Print", Some("Cmd+P"), "{layout?, perPage?, slides?, includeHidden?, frame?}"),
-    ("app.about", "About DeckCraft", None, "{}"),
+    ("app.about", "About FisiSlides", None, "{}"),
+    ("help.fisilab", fisilab_brand::ABOUT_MENU_LABEL, None, "{}"),
     ("app.palette", "Command Palette", Some("Cmd+Shift+P"), "{}"),
     ("app.preferences", "Preferences…", Some("Cmd+,"), "{}"),
     ("app.openDialog", "Open…", None, "{purpose?}"),
@@ -168,7 +184,7 @@ pub const UI_COMMANDS: &[(&str, &str, Option<&str>, &str)] = &[
     ("app.saveAsDialog", "Save As…", None, "{}"),
     ("app.exportDialog", "Export…", None, "{}"),
     ("app.dialog", "Open Dialog", None, "{id}"),
-    ("app.links", "Community Links", None, "{}"),
+    ("app.links", "Links da Suíte FisiLab", None, "{}"),
 ];
 
 pub struct Perf {
@@ -227,6 +243,8 @@ pub struct SlideApp {
     pub(crate) thumb_drag: Option<(usize, usize)>,
     /// Selection pane: folded groups, renaming, drag and drop.
     pub selpane: selpane::State,
+    /// `help.fisilab` asked for the Suíte FisiLab About window (opened on the next frame).
+    fisilab_about: bool,
 }
 
 impl SlideApp {
@@ -267,6 +285,7 @@ impl SlideApp {
             ui_fonts: uifonts::UiFonts::default(),
             thumb_drag: None,
             selpane: selpane::State::default(),
+            fisilab_about: false,
         }
     }
 
@@ -366,7 +385,7 @@ impl SlideApp {
             "outline" | "txt" => ("txt", "outline", false),
             "deckcraft" => ("deckcraft", "deckcraft", false),
             other => {
-                self.set_status(format!("DeckCraft can't export “{other}”"));
+                self.set_status(format!("{APP_NAME} can't export “{other}”"));
                 return false;
             }
         };
@@ -488,9 +507,17 @@ impl SlideApp {
             }
             "view.collapseRibbon" => self.ui.ribbon_collapsed = !self.ui.ribbon_collapsed,
             "view.dark" => {
-                let on = self.flag(p, self.ui.brightness == theme::Brightness::Dark);
-                self.ui.brightness = if on { theme::Brightness::Dark } else { theme::Brightness::Light };
+                // Dark or light within the current theme's family (UFRGS Noite/Dia, or the
+                // original dark/light).
+                let on = self.flag(p, self.ui.brightness.is_dark());
+                self.ui.brightness = self.ui.brightness.with_dark(on);
                 self.restyle = true;
+            }
+            "view.theme" => {
+                let name = p.get("theme").and_then(Value::as_str).ok_or("missing `theme`")?;
+                self.ui.brightness = theme::Brightness::parse(name).ok_or_else(|| format!("unknown theme `{name}`"))?;
+                self.restyle = true;
+                return Ok(json!({"theme": self.ui.brightness.id()}));
             }
             "view.grayscale" => self.ui.grayscale = self.flag(p, self.ui.grayscale),
             "show.start" => {
@@ -533,6 +560,7 @@ impl SlideApp {
                 return Ok(json!({"printed": self.print_pdf(p.clone())}));
             }
             "app.about" => self.dialog = Some(dialogs::Dialog::new("about")),
+            "help.fisilab" => self.fisilab_about = true,
             "app.palette" => self.palette = Some((String::new(), 0)),
             "app.preferences" => self.dialog = Some(dialogs::Dialog::new("preferences")),
             "app.openDialog" => self.pick_and_open(),
@@ -547,7 +575,7 @@ impl SlideApp {
             }
             "app.links" => {
                 use deckcraft_engine::links::*;
-                return Ok(json!({"discord": DISCORD, "website": WEBSITE, "apps": APPS, "appPage": APP_PAGE, "github": GITHUB}));
+                return Ok(json!({"suite": SUITE, "manifesto": MANIFESTO, "upstream": UPSTREAM, "github": GITHUB, "issues": ISSUES}));
             }
             _ => return Err(format!("unknown UI command `{id}`")),
         }
@@ -705,7 +733,7 @@ impl SlideApp {
         } else if lower.ends_with(".txt") || lower.ends_with(".md") {
             "slide.fromOutline"
         } else {
-            self.set_status(format!("{name}: DeckCraft can't open this kind of file"));
+            self.set_status(format!("{name}: {APP_NAME} can't open this kind of file"));
             return;
         };
         let p = if cmd == "slide.fromOutline" { json!({"text": String::from_utf8_lossy(bytes)}) } else { json!({"name": name, "data": data}) };
@@ -925,8 +953,20 @@ impl SlideApp {
         self.drain_requests();
     }
 
-    /// Lay out the whole window.
+    /// Lay out the whole window, then the Suíte FisiLab About window and splash over it (every
+    /// frame once the fonts are ready, whatever the window shows).
     pub fn ui(&mut self, ui: &mut egui::Ui) {
+        let ctx = ui.ctx().clone();
+        self.layout(ui);
+        if self.fonts_ready {
+            if std::mem::take(&mut self.fisilab_about) {
+                fisilab_brand::about::open(&ctx);
+            }
+            fisilab_brand::frame(&ctx, &APP_INFO);
+        }
+    }
+
+    fn layout(&mut self, ui: &mut egui::Ui) {
         let ctx = ui.ctx().clone();
         if !self.fonts_ready {
             ctx.request_repaint();
@@ -1297,6 +1337,59 @@ mod tests {
         harness.key_press_modifiers(ctrl, Key::OpenBracket);
         harness.run_steps(1);
         assert!(size(&mut harness).unwrap_or(f64::MAX) < after, "Ctrl+[ shrinks");
+    }
+
+    /// Suíte FisiLab: Help › "Sobre a Suíte FisiLab…" (`help.fisilab`) opens the suite's About
+    /// window, and the links match the brand crate's.
+    #[test]
+    fn help_fisilab_opens_the_suite_about_window() {
+        use egui_kittest::kittest::Queryable;
+        let help = menus::menu_tree().into_iter().find(|(m, _)| *m == "Help").map(|(_, items)| items).unwrap_or_default();
+        assert!(help.contains(&(fisilab_brand::ABOUT_MENU_LABEL, "help.fisilab")), "{help:?}");
+        assert!(help.contains(&("About FisiSlides", "app.about")), "{help:?}");
+        assert!(UI_COMMANDS.iter().any(|c| c.0 == "help.fisilab" && c.1 == fisilab_brand::ABOUT_MENU_LABEL));
+        assert_eq!(deckcraft_engine::links::SUITE, fisilab_brand::SUITE_URL);
+        assert_eq!(deckcraft_engine::links::MANIFESTO, fisilab_brand::MANIFESTO_URL);
+        assert_eq!(deckcraft_engine::links::UPSTREAM, APP_INFO.upstream_url);
+
+        let mut harness = egui_kittest::Harness::builder().with_size(egui::vec2(1200.0, 800.0)).build_ui_state(
+            |ui, app: &mut SlideApp| {
+                app.logic(ui.ctx());
+                app.ui(ui);
+            },
+            SlideApp::new(Session::with_new(), Services::default()),
+        );
+        harness.run_steps(2);
+        assert!(!fisilab_brand::about::is_open(&harness.ctx));
+        harness.state_mut().run("help.fisilab", json!({})).unwrap();
+        harness.run_steps(3);
+        assert!(fisilab_brand::about::is_open(&harness.ctx));
+        assert!(harness.query_by_label_contains("Sobre o FisiSlides").is_some());
+        assert!(harness.query_by_label_contains("Alternativa livre ao Microsoft PowerPoint").is_some());
+    }
+
+    /// The interface themes: UFRGS Noite by default; Dark Mode switches within the theme's family;
+    /// `view.theme` picks any of them.
+    #[test]
+    fn theme_commands_switch_between_the_suite_and_original_themes() {
+        use theme::Brightness;
+        let mut app = SlideApp::new(Session::with_new(), Services::default());
+        assert_eq!(app.ui.brightness, Brightness::UfrgsNoite);
+        app.run("view.dark", json!({})).unwrap();
+        assert_eq!(app.ui.brightness, Brightness::UfrgsDia);
+        app.run("view.dark", json!({"on": true})).unwrap();
+        assert_eq!(app.ui.brightness, Brightness::UfrgsNoite);
+        assert_eq!(app.run("view.theme", json!({"theme": "light"})).unwrap()["theme"], "light");
+        app.run("view.dark", json!({})).unwrap();
+        assert_eq!(app.ui.brightness, Brightness::Dark);
+        app.run("view.theme", json!({"theme": "UFRGS Dia"})).unwrap();
+        assert_eq!(app.ui.brightness, Brightness::UfrgsDia);
+        assert!(app.run("view.theme", json!({"theme": "neon"})).is_err());
+        // An old ui.json without the field, or from the original app, still loads.
+        let ui: UiState = serde_json::from_str("{}").unwrap();
+        assert_eq!(ui.brightness, Brightness::UfrgsNoite);
+        let ui: UiState = serde_json::from_str(r#"{"brightness": "dark"}"#).unwrap();
+        assert_eq!(ui.brightness, Brightness::Dark);
     }
 
     #[test]

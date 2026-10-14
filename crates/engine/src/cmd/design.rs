@@ -66,7 +66,7 @@ pub fn specs() -> Vec<CommandSpec> {
 fn theme(s: &mut Session, p: &Value) -> Result<Value> {
     let name = str_param(p, "name").ok_or_else(|| bad("design.theme", "missing `name`"))?;
     let t =
-        builtin_themes().into_iter().find(|t| t.name.eq_ignore_ascii_case(name)).ok_or_else(|| bad("design.theme", format!("no theme `{name}`")))?;
+        deckcraft_model::theme::builtin_theme(name).ok_or_else(|| bad("design.theme", format!("no theme `{name}`")))?;
     s.edit(|doc, sel| {
         let mi = master_index(doc, sel);
         let m = doc.masters.get_mut(mi).ok_or_else(|| bad("design.theme", "no master"))?;

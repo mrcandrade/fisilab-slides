@@ -68,8 +68,8 @@ pub struct Theme {
 impl Default for Theme {
     fn default() -> Self {
         builtin_themes().into_iter().next().unwrap_or_else(|| Theme {
-            name: "DeckCraft".into(),
-            colors: ColorScheme { name: "DeckCraft".into(), colors: [Rgba::BLACK; 12] },
+            name: "FisiSlides".into(),
+            colors: ColorScheme { name: "FisiSlides".into(), colors: [Rgba::BLACK; 12] },
             fonts: FontScheme::default(),
             format: FormatScheme::default(),
             raw_extra: None,
@@ -118,7 +118,7 @@ pub fn default_format() -> FormatScheme {
         })
     };
     FormatScheme {
-        name: "DeckCraft".into(),
+        name: "FisiSlides".into(),
         fills: vec![Fill::solid(ph()), grad(110000, 92000), grad(105000, 80000)],
         lines: vec![Line::solid(ph(), 0.75), Line::solid(ph(), 1.0), Line::solid(ph(), 1.5)],
         effects: vec![
@@ -149,6 +149,13 @@ pub fn default_format() -> FormatScheme {
     }
 }
 
+/// The built-in theme called `name` (case-insensitive). "DeckCraft", the first theme's name in
+/// the original app, still finds it.
+pub fn builtin_theme(name: &str) -> Option<Theme> {
+    let name = if name.eq_ignore_ascii_case("DeckCraft") { "FisiSlides" } else { name };
+    builtin_themes().into_iter().find(|t| t.name.eq_ignore_ascii_case(name))
+}
+
 /// Our original built-in themes (shown in Design ▸ Themes). Colours and names are our own.
 pub fn builtin_themes() -> Vec<Theme> {
     let t = |name: &str, colors: ColorScheme, major: &str, minor: &str| Theme {
@@ -164,9 +171,9 @@ pub fn builtin_themes() -> Vec<Theme> {
     };
     vec![
         t(
-            "DeckCraft",
+            "FisiSlides",
             scheme(
-                "DeckCraft",
+                "FisiSlides",
                 ["000000", "FFFFFF", "1E2B3C", "EDEBE7", "2E6FD8", "F26B1D", "2EA36F", "8A5CD8", "D83F6B", "E3B21C", "2E6FD8", "7A5BA6"],
             ),
             "Inter",

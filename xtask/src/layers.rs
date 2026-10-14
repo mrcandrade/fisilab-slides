@@ -60,6 +60,8 @@ pub const TABLE: &[(&str, Class)] = &[
     ("engine", Class::Layer(5)),
     ("ui-egui", Class::Layer(6)),
     ("mcp", Class::Layer(6)),
+    // Suíte FisiLab brand (palette, splash, About window): egui only, used by `ui-egui` and the app.
+    ("fisilab-brand", Class::Layer(6)),
     ("testkit", Class::Testkit),
     // L7 apps and tooling
     ("deckcraft", Class::Exempt),

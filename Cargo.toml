@@ -37,6 +37,8 @@ deckcraft-isobmff = { path = "crates/isobmff" }
 deckcraft-matroska = { path = "crates/matroska" }
 deckcraft-ogg = { path = "crates/ogg" }
 deckcraft-opus = { path = "crates/opus" }
+# Suíte FisiLab brand (palette, CTA splash, About window)
+fisilab-brand = { path = "crates/fisilab-brand" }
 
 # foundation
 kurbo = { version = "0.13", features = ["serde"] }

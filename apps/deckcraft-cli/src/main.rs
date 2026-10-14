@@ -1,16 +1,16 @@
-//! Headless DeckCraft.
+//! Headless FisiSlides (the Suíte FisiLab build of DeckCraft).
 //!
 //! ```text
-//! deckcraft-cli info FILE                       # slides, titles, layouts (JSON)
-//! deckcraft-cli render (FILE | --sample) [--slide N | --all] [--scale S] OUT.png|OUT_DIR
-//! deckcraft-cli render-transition FILE --slide N --t T[,T…] [--width PX] OUT.png   # transition frame(s)
-//! deckcraft-cli convert IN OUT                  # .deckcraft ⇄ .pptx, outline .txt, .png (first slide)
-//! deckcraft-cli run [--in FILE | --sample] [--cmd ID[=JSON]]... [--save OUT] [--export OUT] [--print]
-//! deckcraft-cli commands [FILTER]               # list commands (JSON)
-//! deckcraft-cli describe ID                     # one command
-//! deckcraft-cli app [--port PORT] COMMAND [JSON] | --method METHOD [JSON]   # drive the running app
-//! deckcraft-cli mcp [--connect PORT] [--sample] # MCP server over stdio
-//! deckcraft-cli links | --version
+//! fisislides-cli info FILE                       # slides, titles, layouts (JSON)
+//! fisislides-cli render (FILE | --sample) [--slide N | --all] [--scale S] OUT.png|OUT_DIR
+//! fisislides-cli render-transition FILE --slide N --t T[,T…] [--width PX] OUT.png   # transition frame(s)
+//! fisislides-cli convert IN OUT                  # .deckcraft ⇄ .pptx, outline .txt, .png (first slide)
+//! fisislides-cli run [--in FILE | --sample] [--cmd ID[=JSON]]... [--save OUT] [--export OUT] [--print]
+//! fisislides-cli commands [FILTER]               # list commands (JSON)
+//! fisislides-cli describe ID                     # one command
+//! fisislides-cli app [--port PORT] COMMAND [JSON] | --method METHOD [JSON]   # drive the running app
+//! fisislides-cli mcp [--connect PORT] [--sample] # MCP server over stdio
+//! fisislides-cli links | --version
 //! ```
 #![deny(clippy::unwrap_used, clippy::expect_used, clippy::panic, clippy::unimplemented, clippy::todo, clippy::unreachable)]
 #![forbid(unsafe_code)]
@@ -27,29 +27,29 @@ macro_rules! outln {
             if e.kind() == std::io::ErrorKind::BrokenPipe {
                 std::process::exit(0);
             }
-            eprintln!("deckcraft-cli: can't write to stdout: {e}");
+            eprintln!("fisislides-cli: can't write to stdout: {e}");
             std::process::exit(1);
         }
     }};
 }
 
-const USAGE: &str = "usage: deckcraft-cli info FILE
-       deckcraft-cli render (FILE | --sample) [--slide N | --all] [--scale S] [--edit] OUT
-       deckcraft-cli render-transition FILE --slide N --t T[,T...] [--width PX] OUT.png
-       deckcraft-cli convert IN OUT
-       deckcraft-cli run [--in FILE | --sample] [--cmd ID[=JSON]]... [--save OUT] [--export OUT] [--print]
-       deckcraft-cli commands [FILTER]
-       deckcraft-cli describe COMMAND
-       deckcraft-cli app [--port PORT] COMMAND [JSON] | --method METHOD [JSON]
-       deckcraft-cli mcp [--connect PORT] [--sample]
-       deckcraft-cli links | --version";
+const USAGE: &str = "usage: fisislides-cli info FILE
+       fisislides-cli render (FILE | --sample) [--slide N | --all] [--scale S] [--edit] OUT
+       fisislides-cli render-transition FILE --slide N --t T[,T...] [--width PX] OUT.png
+       fisislides-cli convert IN OUT
+       fisislides-cli run [--in FILE | --sample] [--cmd ID[=JSON]]... [--save OUT] [--export OUT] [--print]
+       fisislides-cli commands [FILTER]
+       fisislides-cli describe COMMAND
+       fisislides-cli app [--port PORT] COMMAND [JSON] | --method METHOD [JSON]
+       fisislides-cli mcp [--connect PORT] [--sample]
+       fisislides-cli links | --version";
 
 fn main() -> ExitCode {
     let args: Vec<String> = std::env::args().skip(1).collect();
     let rest = args.get(1..).unwrap_or(&[]);
     match args.first().map(String::as_str) {
         Some("--version" | "-V" | "version") => {
-            outln!("deckcraft-cli {}", env!("CARGO_PKG_VERSION"));
+            outln!("fisislides-cli {}", env!("CARGO_PKG_VERSION"));
             ExitCode::SUCCESS
         }
         Some("info") => report(info(rest)),
@@ -74,12 +74,15 @@ fn main() -> ExitCode {
         Some("mcp") => report(mcp(rest)),
         Some("links") => {
             use deckcraft_engine::links::*;
-            outln!("Discord   {DISCORD}\nWebsite   {WEBSITE}\nApp page  {APP_PAGE}\nGitHub    {GITHUB}");
+            outln!(
+                "Suíte FisiLab        {SUITE}\nManifesto            {MANIFESTO}\nProjeto original     {UPSTREAM}\nCódigo-fonte         {GITHUB}\nReportar um problema {ISSUES}"
+            );
             ExitCode::SUCCESS
         }
         _ => {
+            eprintln!("FisiSlides {} — Apresentações (Suíte FisiLab · UFRGS), baseado no DeckCraft\n", env!("CARGO_PKG_VERSION"));
             eprintln!("{USAGE}");
-            eprintln!("\nCommunity: {}  ·  {}", deckcraft_engine::links::DISCORD, deckcraft_engine::links::APP_PAGE);
+            eprintln!("\nSuíte FisiLab: {}  ·  Reportar um problema: {}", deckcraft_engine::links::SUITE, deckcraft_engine::links::ISSUES);
             ExitCode::FAILURE
         }
     }
@@ -89,7 +92,7 @@ fn report(r: Result<(), String>) -> ExitCode {
     match r {
         Ok(()) => ExitCode::SUCCESS,
         Err(e) => {
-            eprintln!("deckcraft-cli: {e}");
+            eprintln!("fisislides-cli: {e}");
             ExitCode::FAILURE
         }
     }
@@ -314,7 +317,7 @@ fn app(args: &[String]) -> Result<(), String> {
         }
     }
     let mut r = Remote::connect(&control_addr(&port))
-        .map_err(|e| format!("no DeckCraft app on port {port} ({e}); start it with `deckcraft --control {port}`"))?;
+        .map_err(|e| format!("no FisiSlides app on port {port} ({e}); start it with `fisislides --control {port}`"))?;
     let parse = |s: Option<&String>| -> Result<Value, String> {
         s.map(|j| serde_json::from_str(j).map_err(|e| format!("bad JSON: {e}"))).transpose().map(|v| v.unwrap_or(json!({})))
     };

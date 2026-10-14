@@ -11,7 +11,8 @@ fn new_presentation_is_valid() {
     let s = &p.slides[0];
     let (m, l) = p.master_for(s).unwrap();
     assert_eq!(l.unwrap().kind, LayoutType::Title);
-    assert_eq!(m.theme.name, "DeckCraft");
+    assert_eq!(m.theme.name, "FisiSlides");
+    assert_eq!(theme::builtin_theme("deckcraft").map(|t| t.name), Some("FisiSlides".to_string()), "the original name still works");
     // Title slide has a centred title and a subtitle.
     let kinds: Vec<_> = s.shapes.iter().filter_map(|x| x.ph_type()).collect();
     assert_eq!(kinds, vec![PhType::CtrTitle, PhType::SubTitle]);

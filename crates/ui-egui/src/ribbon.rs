@@ -63,7 +63,7 @@ pub fn title_bar(app: &mut SlideApp, ui: &mut Ui) {
             app.start_show(0, false);
         }
         let title =
-            app.session.active().map(|d| format!("{}{}", d.title(), if dirty { " — Edited" } else { "" })).unwrap_or_else(|| "DeckCraft".into());
+            app.session.active().map(|d| format!("{}{}", d.title(), if dirty { " — Edited" } else { "" })).unwrap_or_else(|| crate::APP_NAME.into());
         ui.painter().text(rect.center(), Align2::CENTER_CENTER, title, theme::font(13.0), t.text);
         // Right side.
         let mut right = ui.new_child(
@@ -90,7 +90,7 @@ pub fn title_bar(app: &mut SlideApp, ui: &mut Ui) {
         }
         if icon_toggle(
             &mut right,
-            if app.ui.brightness == theme::Brightness::Dark { Icon::Sparkle } else { Icon::Palette },
+            if app.ui.brightness.is_dark() { Icon::Sparkle } else { Icon::Palette },
             "Light/Dark appearance",
             true,
             false,
@@ -1772,7 +1772,7 @@ fn record(app: &mut SlideApp, ui: &mut Ui) {
     });
     group(ui, |ui| {
         if big_button(ui, Icon::Help, "Learn\nMore", true).clicked() {
-            app.open_url(deckcraft_engine::links::APP_PAGE);
+            app.open_url(deckcraft_engine::links::SUITE);
         }
     });
 }
@@ -1865,7 +1865,7 @@ fn view(app: &mut SlideApp, ui: &mut Ui) {
         if big_button_ex(ui, Icon::Grayscale, "Grayscale", true, false, gs).0.clicked() {
             app.ui.grayscale = !gs;
         }
-        let dark = app.ui.brightness == theme::Brightness::Dark;
+        let dark = app.ui.brightness.is_dark();
         if big_button_ex(ui, Icon::Palette, "Dark\nMode", true, false, dark).0.clicked() {
             let _ = app.run("view.dark", json!({}));
         }

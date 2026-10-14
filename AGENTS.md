@@ -53,6 +53,8 @@ domain; or contributor-original (created by a contributor who licenses it under
 One narrow exception: the ArtCraft name, wordmark and logos in `docs/brand/` are trademarks of the
 ArtCraft Team (not open source, terms in `docs/brand/LICENSE-brand.txt`), used only unmodified to
 identify the project.
+(FisiSlides, the Suíte FisiLab build: `docs/brand/` and every ArtCraft mark were removed; see
+MODIFICACOES.md.)
 
 Forbidden: system fonts that are not openly licensed, vendor emoji artwork, stock photos, "free
 for personal use" material, screenshots of other people's software, anything whose licence you

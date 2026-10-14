@@ -5,15 +5,21 @@ edition.workspace = true
 license.workspace = true
 description = "DeckCraft desktop app"
 publish = false
-default-run = "deckcraft"
+default-run = "fisislides"
 
 [lints]
 workspace = true
+
+# The Suíte FisiLab build ships the GUI as fisislides.exe (package name unchanged).
+[[bin]]
+name = "fisislides"
+path = "src/main.rs"
 
 [dependencies]
 deckcraft-engine = { workspace = true }
 deckcraft-ui-egui = { workspace = true }
 deckcraft-media = { workspace = true }
+fisilab-brand = { workspace = true }
 eframe = { workspace = true, features = ["default_fonts", "wgpu", "accesskit", "links", "wayland", "x11"] }
 egui = { workspace = true }
 serde_json = { workspace = true }

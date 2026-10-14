@@ -46,7 +46,7 @@ pub fn specs() -> Vec<CommandSpec> {
 }
 
 fn theme_named(name: &str) -> Option<deckcraft_model::Theme> {
-    deckcraft_model::theme::builtin_themes().into_iter().find(|t| t.name.eq_ignore_ascii_case(name))
+    deckcraft_model::theme::builtin_theme(name)
 }
 
 fn new(s: &mut Session, p: &Value) -> Result<Value> {
@@ -83,7 +83,7 @@ pub fn open_presentation(name: &str, bytes: &[u8]) -> Result<Presentation> {
         }
         return Ok(p);
     }
-    Err(EngineError::Other(format!("{name}: not a presentation DeckCraft can read")))
+    Err(EngineError::Other(format!("{name}: not a presentation FisiSlides can read")))
 }
 
 pub fn add_opened(s: &mut Session, name: &str, path: Option<String>, p: Presentation) -> usize {
