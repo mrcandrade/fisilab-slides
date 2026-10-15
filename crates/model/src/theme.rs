@@ -68,8 +68,8 @@ pub struct Theme {
 impl Default for Theme {
     fn default() -> Self {
         builtin_themes().into_iter().next().unwrap_or_else(|| Theme {
-            name: "FisiSlides".into(),
-            colors: ColorScheme { name: "FisiSlides".into(), colors: [Rgba::BLACK; 12] },
+            name: "FisiLab Slides".into(),
+            colors: ColorScheme { name: "FisiLab Slides".into(), colors: [Rgba::BLACK; 12] },
             fonts: FontScheme::default(),
             format: FormatScheme::default(),
             raw_extra: None,
@@ -118,7 +118,7 @@ pub fn default_format() -> FormatScheme {
         })
     };
     FormatScheme {
-        name: "FisiSlides".into(),
+        name: "FisiLab Slides".into(),
         fills: vec![Fill::solid(ph()), grad(110000, 92000), grad(105000, 80000)],
         lines: vec![Line::solid(ph(), 0.75), Line::solid(ph(), 1.0), Line::solid(ph(), 1.5)],
         effects: vec![
@@ -150,9 +150,10 @@ pub fn default_format() -> FormatScheme {
 }
 
 /// The built-in theme called `name` (case-insensitive). "DeckCraft", the first theme's name in
-/// the original app, still finds it.
+/// the original app, and "FisiSlides", its name in earlier Suíte FisiLab builds, still find it.
 pub fn builtin_theme(name: &str) -> Option<Theme> {
-    let name = if name.eq_ignore_ascii_case("DeckCraft") { "FisiSlides" } else { name };
+    let name =
+        if name.eq_ignore_ascii_case("DeckCraft") || name.eq_ignore_ascii_case("FisiSlides") { "FisiLab Slides" } else { name };
     builtin_themes().into_iter().find(|t| t.name.eq_ignore_ascii_case(name))
 }
 
@@ -171,9 +172,9 @@ pub fn builtin_themes() -> Vec<Theme> {
     };
     vec![
         t(
-            "FisiSlides",
+            "FisiLab Slides",
             scheme(
-                "FisiSlides",
+                "FisiLab Slides",
                 ["000000", "FFFFFF", "1E2B3C", "EDEBE7", "2E6FD8", "F26B1D", "2EA36F", "8A5CD8", "D83F6B", "E3B21C", "2E6FD8", "7A5BA6"],
             ),
             "Inter",

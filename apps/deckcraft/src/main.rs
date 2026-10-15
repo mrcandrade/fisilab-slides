@@ -1,12 +1,12 @@
-//! FisiSlides desktop app (the Suíte FisiLab build of DeckCraft).
+//! Slides desktop app (the Suíte FisiLab build of DeckCraft).
 //!
-//! Usage: `fisislides [--control <port>] [--sample] [--show] [files…]`
+//! Usage: `fisilab-slides [--control <port>] [--sample] [--show] [files…]`
 //!
 //! `--control <port>` (or `DECKCRAFT_CONTROL_PORT`) starts a localhost JSON-lines control server:
 //! `{"id":1,"method":"ui.inspect","params":{}}` → `{"id":1,"ok":true,"result":…}`.
 //! See `deckcraft_ui_egui::control` for the methods.
 //!
-//! `log` records go to standard error and `<settings dir>/logs/fisislides.log` (`RUST_LOG` sets the
+//! `log` records go to standard error and `<settings dir>/logs/fisilab-slides.log` (`RUST_LOG` sets the
 //! levels); see [`logging`].
 #![cfg_attr(all(target_os = "windows", not(debug_assertions)), windows_subsystem = "windows")]
 #![deny(clippy::unwrap_used, clippy::expect_used, clippy::panic, clippy::unimplemented, clippy::todo, clippy::unreachable)]
@@ -38,18 +38,18 @@ impl eframe::App for App {
     }
 }
 
-/// The per-user settings directory: `ui.json`, `prefs.json` and `logs/` live here. FisiSlides
-/// keeps its own (`FisiSlides`, `fisislides`), apart from an upstream DeckCraft install's.
+/// The per-user settings directory: `ui.json`, `prefs.json` and `logs/` live here. Slides
+/// keeps its own (`FisiLab Slides`, `fisilab-slides`), apart from an upstream DeckCraft install's.
 fn config_dir() -> Option<std::path::PathBuf> {
     if cfg!(target_os = "macos") {
-        std::env::var_os("HOME").map(|h| std::path::PathBuf::from(h).join("Library/Application Support/FisiSlides"))
+        std::env::var_os("HOME").map(|h| std::path::PathBuf::from(h).join("Library/Application Support/FisiLab Slides"))
     } else if cfg!(windows) {
-        std::env::var_os("APPDATA").map(|a| std::path::PathBuf::from(a).join("FisiSlides"))
+        std::env::var_os("APPDATA").map(|a| std::path::PathBuf::from(a).join("FisiLab Slides"))
     } else {
         std::env::var_os("XDG_CONFIG_HOME")
             .map(std::path::PathBuf::from)
             .or_else(|| std::env::var_os("HOME").map(|h| std::path::PathBuf::from(h).join(".config")))
-            .map(|c| c.join("fisislides"))
+            .map(|c| c.join("fisilab-slides"))
     }
 }
 
@@ -103,7 +103,7 @@ fn services() -> Services {
                 "video" => d.add_filter("Video", &["mp4", "m4v", "mov", "webm", "mkv", "wmv"]),
                 _ => d
                     .add_filter("Presentations", &["deckcraft", "pptx", "potx", "ppsx"])
-                    .add_filter("FisiSlides", &["deckcraft"])
+                    .add_filter("FisiLab Slides", &["deckcraft"])
                     .add_filter("PowerPoint", &["pptx", "potx", "ppsx"])
                     .add_filter("Outline", &["txt", "md"]),
             };
@@ -128,10 +128,10 @@ fn services() -> Services {
     }
 }
 
-const APP_ID: &str = "br.ufrgs.fisilab.fisislides";
+const APP_ID: &str = "br.ufrgs.fisilab.slides";
 
 fn app_icon() -> Option<egui::IconData> {
-    let png: &[u8] = include_bytes!("../../../assets/fisilab/fisislides-256.png");
+    let png: &[u8] = include_bytes!("../../../assets/fisilab/fisilab-slides-256.png");
     eframe::icon_data::from_png_bytes(png).map_err(|e| log::warn!("app icon: {e}")).ok()
 }
 
@@ -150,13 +150,13 @@ fn main() -> eframe::Result {
             "--sample" => sample = true,
             "--show" => show = true,
             "--version" => {
-                println!("fisislides {}", env!("CARGO_PKG_VERSION"));
+                println!("fisilab-slides {}", env!("CARGO_PKG_VERSION"));
                 return Ok(());
             }
             _ => files.push(a),
         }
     }
-    log::info!("FisiSlides {} ({} {})", env!("CARGO_PKG_VERSION"), std::env::consts::OS, std::env::consts::ARCH);
+    log::info!("Slides {} ({} {})", env!("CARGO_PKG_VERSION"), std::env::consts::OS, std::env::consts::ARCH);
     // The log file lives under the settings directory; opened after the arguments, so `--version`
     // leaves no file behind. Records logged until now are written to it first.
     if let Some(logger) = logger {

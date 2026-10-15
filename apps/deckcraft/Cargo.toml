@@ -5,14 +5,14 @@ edition.workspace = true
 license.workspace = true
 description = "DeckCraft desktop app"
 publish = false
-default-run = "fisislides"
+default-run = "fisilab-slides"
 
 [lints]
 workspace = true
 
-# The Suíte FisiLab build ships the GUI as fisislides.exe (package name unchanged).
+# The Suíte FisiLab build ships the GUI as fisilab-slides.exe (package name unchanged).
 [[bin]]
-name = "fisislides"
+name = "fisilab-slides"
 path = "src/main.rs"
 
 [dependencies]

@@ -264,7 +264,7 @@ pub fn menu_tree() -> Vec<(&'static str, Vec<(&'static str, &'static str)>)> {
         ),
         (
             "Help",
-            vec![("About FisiSlides", "app.about"), (fisilab_brand::ABOUT_MENU_LABEL, "help.fisilab"), ("Command Palette", "app.palette")],
+            vec![("About Slides", "app.about"), (fisilab_brand::ABOUT_MENU_LABEL, "help.fisilab"), ("Command Palette", "app.palette")],
         ),
     ]
 }

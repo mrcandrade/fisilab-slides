@@ -208,7 +208,7 @@ impl Backstage {
 /// Save As and Change File Type: (id for [`SlideApp::export_as`], label, detail).
 pub const SAVE_TYPES: [(&str, &str, &str); 6] = [
     ("pptx", "PowerPoint Presentation (*.pptx)", "Opens in PowerPoint and other presentation apps"),
-    ("deckcraft", "FisiSlides Presentation (*.deckcraft)", "FisiSlides' own format: everything is kept"),
+    ("deckcraft", "FisiLab Slides Presentation (*.deckcraft)", "FisiLab Slides' own format: everything is kept"),
     ("pdf", "PDF (*.pdf)", "A fixed copy that keeps its layout on any device"),
     ("outline", "Outline (*.txt)", "The slide titles and bullet text as plain text"),
     ("png", "PNG Picture (*.png)", "The current slide as a picture"),
@@ -523,7 +523,7 @@ fn new_tiles(app: &mut SlideApp, ui: &mut Ui, query: &str, limit: usize, blank: 
             shown += 1;
         }
         if sample && shown < limit {
-            let th = deckcraft_model::theme::builtin_themes().into_iter().find(|t| t.name == "FisiSlides");
+            let th = deckcraft_model::theme::builtin_themes().into_iter().find(|t| t.name == "FisiLab Slides");
             if tile(ui, "Sample deck: Northern Lights", th.as_ref(), false).clicked()
                 && let Err(e) = deckcraft_engine::sample::open_sample(&mut app.session)
             {
@@ -931,9 +931,9 @@ fn print(app: &mut SlideApp, ui: &mut Ui, bs: &mut Backstage) {
             dim(
                 ui,
                 if app.services.pick_save.is_some() {
-                    "FisiSlides prints through a PDF: it opens in your PDF viewer, where you choose the printer."
+                    "FisiLab Slides prints through a PDF: it opens in your PDF viewer, where you choose the printer."
                 } else {
-                    "FisiSlides prints through a PDF: it downloads, ready to print from your browser or PDF viewer."
+                    "FisiLab Slides prints through a PDF: it downloads, ready to print from your browser or PDF viewer."
                 },
             );
             ui.add_space(14.0);
@@ -1199,7 +1199,7 @@ fn bullets(ui: &mut Ui, items: &[&str]) {
     ui.add_space(10.0);
 }
 
-/// Account: the interface's appearance and what FisiSlides is. FisiSlides has no accounts, so
+/// Account: the interface's appearance and what FisiLab Slides is. It has no accounts, so
 /// there is nothing to sign in to.
 fn account(app: &mut SlideApp, ui: &mut Ui) {
     let t = Tokens::get(ui.ctx());
@@ -1210,7 +1210,7 @@ fn account(app: &mut SlideApp, ui: &mut Ui) {
             crate::dialogs::theme_picker(app, ui, "backstage_appearance", 260.0);
             ui.add_space(16.0);
             heading(ui, "User Information");
-            dim(ui, "FisiSlides has no accounts: there is nothing to sign in to, and your presentations stay on your device.");
+            dim(ui, "FisiLab Slides has no accounts: there is nothing to sign in to, and your presentations stay on your device.");
         });
         ui.add_space(40.0);
         ui.vertical(|ui| {
@@ -1227,8 +1227,8 @@ fn account(app: &mut SlideApp, ui: &mut Ui) {
             if task(
                 ui,
                 Icon::Help,
-                "About FisiSlides",
-                "About FisiSlides",
+                "About Slides",
+                "About Slides",
                 "The version, the people and models who built it, and where to find us.",
                 true,
             ) {

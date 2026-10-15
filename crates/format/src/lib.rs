@@ -52,7 +52,7 @@ pub fn save(p: &Presentation) -> Result<Vec<u8>> {
         let m = Manifest {
             format: "deckcraft".into(),
             version: VERSION,
-            generator: format!("FisiSlides {}", env!("CARGO_PKG_VERSION")),
+            generator: format!("FisiLab Slides {}", env!("CARGO_PKG_VERSION")),
             presentation: p.clone(),
         };
         let json = serde_json::to_vec(&m).map_err(|e| FormatError::Write(e.to_string()))?;

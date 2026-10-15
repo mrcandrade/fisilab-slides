@@ -1,8 +1,8 @@
 <p align="center">
-  <img src="assets/fisilab/fisislides-256.png" alt="Ícone do FisiSlides" width="128">
+  <img src="assets/fisilab/fisilab-slides-256.png" alt="Ícone do Slides" width="128">
 </p>
 
-<h1 align="center">FisiSlides</h1>
+<h1 align="center">Slides · Suíte FisiLab</h1>
 
 <p align="center"><b>Apresentações</b></p>
 
@@ -33,16 +33,16 @@
   páginas de anotações e folhetos com texto selecionável), PNG/JPEG e tópicos em texto. A
   Recuperação Automática guarda o trabalho não salvo.
 - **Automatiza**: mais de 200 comandos com desfazer, todos acessíveis pela linha de comando
-  (`fisislides-cli`), por um canal de controle JSON e por um servidor MCP para agentes de IA.
+  (`fisilab-slides-cli`), por um canal de controle JSON e por um servidor MCP para agentes de IA.
 
 ## Instalação
 
 ### Windows
 
-Baixe o instalador `FisiSlides-Setup-<versão>.exe` no portal de downloads da
+Baixe o instalador `FisiLab-Slides-Setup-<versão>.exe` no portal de downloads da
 [Suíte FisiLab](https://github.com/mrcandrade/larfic/tree/main/suite-fisilab) ou na página de
-[versões do FisiSlides no GitHub](https://github.com/mrcandrade/fisislides/releases) e execute-o.
-O programa aparece no menu Iniciar como **FisiSlides**.
+[versões do Slides no GitHub](https://github.com/mrcandrade/fisilab-slides/releases) e execute-o.
+O programa aparece no menu Iniciar como **Slides**.
 
 ### Compilar a partir do código
 
@@ -50,21 +50,21 @@ O programa aparece no menu Iniciar como **FisiSlides**.
 do Visual Studio).
 
 ```sh
-git clone https://github.com/mrcandrade/fisislides
-cd fisislides
-cargo run --release -p deckcraft                 # abre o FisiSlides (target/release/fisislides)
-cargo run --release -p deckcraft-cli -- --help   # a ferramenta de linha de comando (fisislides-cli)
+git clone https://github.com/mrcandrade/fisilab-slides
+cd fisilab-slides
+cargo run --release -p deckcraft                 # abre o Slides (target/release/fisilab-slides)
+cargo run --release -p deckcraft-cli -- --help   # a ferramenta de linha de comando (fisilab-slides-cli)
 ```
 
 No Linux, a compilação também precisa dos cabeçalhos do ALSA (`libasound2-dev` no Debian e Ubuntu,
 `alsa-lib-devel` no Fedora). As fontes da interface vêm do
 [craft-fonts](https://github.com/storytold/craft-fonts): clone-o ao lado deste repositório
-(`../craft-fonts`) ou aponte `CRAFT_FONTS_DIR` para ele; sem ele, o FisiSlides usa as fontes do
+(`../craft-fonts`) ou aponte `CRAFT_FONTS_DIR` para ele; sem ele, o Slides usa as fontes do
 sistema.
 
 ## Créditos
 
-O FisiSlides é uma versão modificada do **[DeckCraft](https://github.com/storytold/deckcraft)**,
+O Slides é uma versão modificada do **[DeckCraft](https://github.com/storytold/deckcraft)**,
 criado pelo ArtCraft Team e pelos contribuidores do DeckCraft, distribuído sob a licença
 [MIT](LICENSE-MIT) ou [Apache 2.0](LICENSE-APACHE), à escolha de quem o usa. As modificações do
 FisiLab seguem os mesmos termos e estão descritas em [MODIFICACOES.md](MODIFICACOES.md).

@@ -18,7 +18,7 @@ const INVALID_PARAMS: i64 = -32602;
 const INTERNAL_ERROR: i64 = -32603;
 const RESOURCE_NOT_FOUND: i64 = -32002;
 
-const INSTRUCTIONS: &str = "FisiSlides (the Suíte FisiLab build of DeckCraft) is a presentation app (a PowerPoint clone). Coordinates are points on the \
+const INSTRUCTIONS: &str = "FisiLab Slides (the Suíte FisiLab build of DeckCraft) is a presentation app (a PowerPoint clone). Coordinates are points on the \
 current slide (y down; the default 16:9 slide is 960×540). Every action is a command: find ids and parameters with \
 list_commands and run them with run_command (or several with batch). Typical flow: new_presentation → add_slide \
 {layout:\"titleAndContent\", title, body} → add_shape / add_text_box / insert_picture / insert_chart → \
@@ -135,7 +135,7 @@ impl Server {
                 Ok(json!({
                     "protocolVersion": version,
                     "capabilities": {"tools": {}, "resources": {}},
-                    "serverInfo": {"name": "deckcraft", "title": "FisiSlides", "version": env!("CARGO_PKG_VERSION"), "websiteUrl": deckcraft_engine::links::SUITE},
+                    "serverInfo": {"name": "deckcraft", "title": "FisiLab Slides", "version": env!("CARGO_PKG_VERSION"), "websiteUrl": deckcraft_engine::links::SUITE},
                     "instructions": format!(
                         "{INSTRUCTIONS} Backend: {}. Links: {} (Suíte FisiLab), {} (source), {} (original project, DeckCraft). The `app.links` command returns these links.",
                         self.backend.describe(),

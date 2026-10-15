@@ -1,82 +1,84 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  FisiSlides MSI (WiX Toolset v5: `dotnet tool install -g wix`). Built by package.ps1:
+  Slides MSI (WiX Toolset v5: `dotnet tool install -g wix`). Built by package.ps1:
 
     wix build deckcraft.wxs -arch x64 -d Version=1.2.3 -d BinDir=... -d IconPath=... -o out.msi
 
-  Per-machine install into Program Files, a Start Menu shortcut, `.deckcraft` owned by
-  FisiSlides, and FisiSlides offered under "Open with" for .pptx/.potx/.ppsx (without taking over
-  the user's default app for them).
+  Per-machine install into Program Files\Suite FisiLab\Slides (the suite's Inno Setup layout),
+  a Start Menu shortcut, `.deckcraft` owned by Slides, and Slides offered under "Open with" for
+  .pptx/.potx/.ppsx (without taking over the user's default app for them).
 
-  Suíte FisiLab: FisiSlides has its own UpgradeCode and component GUIDs (never DeckCraft's, so it
+  Suíte FisiLab: Slides has its own UpgradeCode and component GUIDs (never DeckCraft's, so it
   neither upgrades nor removes an upstream DeckCraft install); never change them. The suite's
   official installer is an Inno Setup one built by the suite's orchestrator; this MSI is kept
   working for reference.
 -->
 <Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
   <Package
-      Name="FisiSlides"
+      Name="Slides"
       Manufacturer="FisiLab — LARFIC/UFRGS"
       Version="$(var.Version)"
       UpgradeCode="2B3056DB-EAB4-4868-AAF4-AA3D980D3835"
       Scope="perMachine"
       Compressed="yes"
       Language="1033">
-    <SummaryInformation Description="FisiSlides — Apresentações (Suíte FisiLab)" Manufacturer="FisiLab — LARFIC/UFRGS" />
+    <SummaryInformation Description="Slides — Apresentações (Suíte FisiLab)" Manufacturer="FisiLab — LARFIC/UFRGS" />
     <!-- Same-version upgrades let successive pre-releases of one X.Y.Z replace each other
          (MSI versions are numeric, so 1.2.3-rc.1 and 1.2.3-rc.2 are both 1.2.3). -->
     <MajorUpgrade AllowSameVersionUpgrades="yes"
-        DowngradeErrorMessage="Uma versão mais nova do FisiSlides já está instalada." />
+        DowngradeErrorMessage="Uma versão mais nova do Slides já está instalada." />
     <MediaTemplate EmbedCab="yes" CompressionLevel="high" />
 
-    <Icon Id="FisiSlidesIcon.ico" SourceFile="$(var.IconPath)" />
-    <Property Id="ARPPRODUCTICON" Value="FisiSlidesIcon.ico" />
+    <Icon Id="SlidesIcon.ico" SourceFile="$(var.IconPath)" />
+    <Property Id="ARPPRODUCTICON" Value="SlidesIcon.ico" />
     <Property Id="ARPURLINFOABOUT" Value="https://github.com/mrcandrade/larfic/tree/main/suite-fisilab" />
-    <Property Id="ARPURLUPDATEINFO" Value="https://github.com/mrcandrade/fisislides/releases" />
-    <Property Id="ARPHELPLINK" Value="https://github.com/mrcandrade/fisislides/issues" />
+    <Property Id="ARPURLUPDATEINFO" Value="https://github.com/mrcandrade/fisilab-slides/releases" />
+    <Property Id="ARPHELPLINK" Value="https://github.com/mrcandrade/fisilab-slides/issues" />
 
     <StandardDirectory Id="ProgramFiles6432Folder">
-      <Directory Id="INSTALLFOLDER" Name="FisiSlides" />
+      <Directory Id="FISILABFOLDER" Name="Suite FisiLab">
+        <Directory Id="INSTALLFOLDER" Name="Slides" />
+      </Directory>
     </StandardDirectory>
     <StandardDirectory Id="ProgramMenuFolder" />
 
-    <Feature Id="Main" Title="FisiSlides" Level="1">
-      <ComponentGroupRef Id="FisiSlidesFiles" />
+    <Feature Id="Main" Title="Slides" Level="1">
+      <ComponentGroupRef Id="SlidesFiles" />
     </Feature>
   </Package>
 
   <Fragment>
-    <ComponentGroup Id="FisiSlidesFiles" Directory="INSTALLFOLDER">
-      <Component Id="FisiSlidesApp" Guid="3CB23281-E85F-4159-819F-DE6B5C60B292">
-        <File Id="FisiSlidesExe" Source="$(var.BinDir)\fisislides.exe" KeyPath="yes">
-          <Shortcut Id="StartMenuShortcut" Directory="ProgramMenuFolder" Name="FisiSlides"
-              Description="FisiSlides — Apresentações (Suíte FisiLab)" WorkingDirectory="INSTALLFOLDER" Advertise="yes"
-              Icon="FisiSlidesIcon.ico" IconIndex="0" />
+    <ComponentGroup Id="SlidesFiles" Directory="INSTALLFOLDER">
+      <Component Id="SlidesApp" Guid="3CB23281-E85F-4159-819F-DE6B5C60B292">
+        <File Id="SlidesExe" Source="$(var.BinDir)\fisilab-slides.exe" KeyPath="yes">
+          <Shortcut Id="StartMenuShortcut" Directory="ProgramMenuFolder" Name="Slides"
+              Description="Slides — Apresentações (Suíte FisiLab)" WorkingDirectory="INSTALLFOLDER" Advertise="yes"
+              Icon="SlidesIcon.ico" IconIndex="0" />
         </File>
 
-        <!-- .deckcraft: the DeckCraft/FisiSlides format (extension unchanged for compatibility). -->
-        <ProgId Id="FisiLab.FisiSlides.Presentation" Description="Apresentação do FisiSlides" Icon="FisiSlidesExe" IconIndex="0">
+        <!-- .deckcraft: the DeckCraft/FisiLab Slides format (extension unchanged for compatibility). -->
+        <ProgId Id="FisiLab.Slides.Presentation" Description="Apresentação do FisiLab Slides" Icon="SlidesExe" IconIndex="0">
           <Extension Id="deckcraft" ContentType="application/x-deckcraft">
-            <Verb Id="open" Command="Abrir" TargetFile="FisiSlidesExe" Argument="&quot;%1&quot;" />
+            <Verb Id="open" Command="Abrir" TargetFile="SlidesExe" Argument="&quot;%1&quot;" />
           </Extension>
         </ProgId>
 
         <!-- "Open with" for PowerPoint formats, without becoming the default. -->
-        <RegistryValue Root="HKLM" Key="Software\Classes\Applications\fisislides.exe" Name="FriendlyAppName" Value="FisiSlides" Type="string" />
-        <RegistryValue Root="HKLM" Key="Software\Classes\Applications\fisislides.exe\shell\open\command" Value="&quot;[#FisiSlidesExe]&quot; &quot;%1&quot;" Type="string" />
-        <RegistryValue Root="HKLM" Key="Software\Classes\Applications\fisislides.exe\SupportedTypes" Name=".deckcraft" Value="" Type="string" />
-        <RegistryValue Root="HKLM" Key="Software\Classes\Applications\fisislides.exe\SupportedTypes" Name=".pptx" Value="" Type="string" />
-        <RegistryValue Root="HKLM" Key="Software\Classes\Applications\fisislides.exe\SupportedTypes" Name=".potx" Value="" Type="string" />
-        <RegistryValue Root="HKLM" Key="Software\Classes\Applications\fisislides.exe\SupportedTypes" Name=".ppsx" Value="" Type="string" />
-        <RegistryValue Root="HKLM" Key="Software\Classes\.pptx\OpenWithProgids" Name="FisiLab.FisiSlides.Presentation" Value="" Type="string" />
-        <RegistryValue Root="HKLM" Key="Software\Classes\.potx\OpenWithProgids" Name="FisiLab.FisiSlides.Presentation" Value="" Type="string" />
-        <RegistryValue Root="HKLM" Key="Software\Classes\.ppsx\OpenWithProgids" Name="FisiLab.FisiSlides.Presentation" Value="" Type="string" />
+        <RegistryValue Root="HKLM" Key="Software\Classes\Applications\fisilab-slides.exe" Name="FriendlyAppName" Value="Slides" Type="string" />
+        <RegistryValue Root="HKLM" Key="Software\Classes\Applications\fisilab-slides.exe\shell\open\command" Value="&quot;[#SlidesExe]&quot; &quot;%1&quot;" Type="string" />
+        <RegistryValue Root="HKLM" Key="Software\Classes\Applications\fisilab-slides.exe\SupportedTypes" Name=".deckcraft" Value="" Type="string" />
+        <RegistryValue Root="HKLM" Key="Software\Classes\Applications\fisilab-slides.exe\SupportedTypes" Name=".pptx" Value="" Type="string" />
+        <RegistryValue Root="HKLM" Key="Software\Classes\Applications\fisilab-slides.exe\SupportedTypes" Name=".potx" Value="" Type="string" />
+        <RegistryValue Root="HKLM" Key="Software\Classes\Applications\fisilab-slides.exe\SupportedTypes" Name=".ppsx" Value="" Type="string" />
+        <RegistryValue Root="HKLM" Key="Software\Classes\.pptx\OpenWithProgids" Name="FisiLab.Slides.Presentation" Value="" Type="string" />
+        <RegistryValue Root="HKLM" Key="Software\Classes\.potx\OpenWithProgids" Name="FisiLab.Slides.Presentation" Value="" Type="string" />
+        <RegistryValue Root="HKLM" Key="Software\Classes\.ppsx\OpenWithProgids" Name="FisiLab.Slides.Presentation" Value="" Type="string" />
 
-        <RegistryValue Root="HKLM" Key="Software\Microsoft\Windows\CurrentVersion\App Paths\fisislides.exe" Value="[#FisiSlidesExe]" Type="string" />
+        <RegistryValue Root="HKLM" Key="Software\Microsoft\Windows\CurrentVersion\App Paths\fisilab-slides.exe" Value="[#SlidesExe]" Type="string" />
       </Component>
 
-      <Component Id="FisiSlidesCli">
-        <File Id="FisiSlidesCliExe" Source="$(var.BinDir)\fisislides-cli.exe" KeyPath="yes" />
+      <Component Id="SlidesCli">
+        <File Id="SlidesCliExe" Source="$(var.BinDir)\fisilab-slides-cli.exe" KeyPath="yes" />
       </Component>
     </ComponentGroup>
   </Fragment>

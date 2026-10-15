@@ -38,7 +38,7 @@ pub use control::{ControlRequest, ControlResponse};
 
 /// What the Suíte FisiLab About window and splash say about this app.
 pub const APP_INFO: fisilab_brand::AppInfo = fisilab_brand::AppInfo {
-    name: "FisiSlides",
+    name: "Slides",
     tagline: "Apresentações",
     equivalent: "Microsoft PowerPoint",
     version: env!("CARGO_PKG_VERSION"),
@@ -173,7 +173,7 @@ pub const UI_COMMANDS: &[(&str, &str, Option<&str>, &str)] = &[
     ("app.backstage", "File", Some("Alt+F"), "{page?: home|new|open|info|saveAs|print|export|account, on?: bool}"),
     ("app.closePresentation", "Close", Some("Cmd+W"), "{}"),
     ("app.print", "Print", Some("Cmd+P"), "{layout?, perPage?, slides?, includeHidden?, frame?}"),
-    ("app.about", "About FisiSlides", None, "{}"),
+    ("app.about", "About Slides", None, "{}"),
     ("help.fisilab", fisilab_brand::ABOUT_MENU_LABEL, None, "{}"),
     ("app.palette", "Command Palette", Some("Cmd+Shift+P"), "{}"),
     ("app.preferences", "Preferences…", Some("Cmd+,"), "{}"),
@@ -1346,7 +1346,7 @@ mod tests {
         use egui_kittest::kittest::Queryable;
         let help = menus::menu_tree().into_iter().find(|(m, _)| *m == "Help").map(|(_, items)| items).unwrap_or_default();
         assert!(help.contains(&(fisilab_brand::ABOUT_MENU_LABEL, "help.fisilab")), "{help:?}");
-        assert!(help.contains(&("About FisiSlides", "app.about")), "{help:?}");
+        assert!(help.contains(&("About Slides", "app.about")), "{help:?}");
         assert!(UI_COMMANDS.iter().any(|c| c.0 == "help.fisilab" && c.1 == fisilab_brand::ABOUT_MENU_LABEL));
         assert_eq!(deckcraft_engine::links::SUITE, fisilab_brand::SUITE_URL);
         assert_eq!(deckcraft_engine::links::MANIFESTO, fisilab_brand::MANIFESTO_URL);
@@ -1364,7 +1364,7 @@ mod tests {
         harness.state_mut().run("help.fisilab", json!({})).unwrap();
         harness.run_steps(3);
         assert!(fisilab_brand::about::is_open(&harness.ctx));
-        assert!(harness.query_by_label_contains("Sobre o FisiSlides").is_some());
+        assert!(harness.query_by_label_contains(&format!("{} — Suíte FisiLab", APP_INFO.name)).is_some());
         assert!(harness.query_by_label_contains("Alternativa livre ao Microsoft PowerPoint").is_some());
     }
 

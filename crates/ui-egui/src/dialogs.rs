@@ -43,7 +43,7 @@ fn title(id: &str) -> &'static str {
         "renameShape" => "Rename",
         "renameLayout" => "Rename Layout",
         "paragraph" => "Paragraph",
-        "about" => "About FisiSlides",
+        "about" => "About Slides",
         "preferences" => "Preferences",
         "export" => "Export",
         "symbol" => "Symbol",
@@ -783,7 +783,7 @@ fn pretty_equation(s: &str) -> String {
     out.replace("sqrt", "√").replace("<=", "≤").replace(">=", "≥").replace("!=", "≠").replace("pi", "π").replace("+-", "±")
 }
 
-/// The About tab: FisiSlides, its origin and the suite's links. True when "Sobre a Suíte FisiLab"
+/// The About tab: Slides, its origin and the suite's links. True when "Sobre a Suíte FisiLab"
 /// was clicked.
 pub fn about(_app: &mut SlideApp, ui: &mut Ui) -> bool {
     let t = Tokens::get(ui.ctx());
@@ -851,16 +851,16 @@ pub fn version_line() -> String {
     s
 }
 
-/// The FisiSlides icon (`assets/fisilab/fisislides-128.png`), decoded once and kept as a texture.
+/// The Slides icon (`assets/fisilab/fisilab-slides-128.png`), decoded once and kept as a texture.
 pub fn paint_logo(p: &egui::Painter, r: Rect) {
     let ctx = p.ctx();
-    let id = egui::Id::new("fisislides-logo");
+    let id = egui::Id::new("fisilab-slides-logo");
     let tex = ctx.data(|d| d.get_temp::<Option<egui::TextureHandle>>(id)).unwrap_or_else(|| {
-        let png: &[u8] = include_bytes!("../../../assets/fisilab/fisislides-128.png");
+        let png: &[u8] = include_bytes!("../../../assets/fisilab/fisilab-slides-128.png");
         let tex = deckcraft_render::decode_image(png).map(|img| {
             let size = [img.width() as usize, img.height() as usize];
             let image = egui::ColorImage::from_rgba_unmultiplied(size, img.as_raw());
-            ctx.load_texture("fisislides-logo", image, egui::TextureOptions::LINEAR)
+            ctx.load_texture("fisilab-slides-logo", image, egui::TextureOptions::LINEAR)
         });
         ctx.data_mut(|d| d.insert_temp(id, tex.clone()));
         tex

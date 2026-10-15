@@ -24,9 +24,9 @@
   <icon type="stock">ai.storyteller.deckcraft</icon>
   <!-- Only url types known to appstream 0.15 (Ubuntu 22.04, where CI validates): no vcs-browser. -->
   <url type="homepage">https://github.com/mrcandrade/larfic/tree/main/suite-fisilab</url>
-  <url type="bugtracker">https://github.com/mrcandrade/fisislides/issues</url>
-  <url type="help">https://github.com/mrcandrade/fisislides</url>
-  <url type="contact">https://github.com/mrcandrade/fisislides/issues</url>
+  <url type="bugtracker">https://github.com/mrcandrade/fisilab-slides/issues</url>
+  <url type="help">https://github.com/mrcandrade/fisilab-slides</url>
+  <url type="contact">https://github.com/mrcandrade/fisilab-slides/issues</url>
   <categories>
     <category>Office</category>
     <category>Presentation</category>

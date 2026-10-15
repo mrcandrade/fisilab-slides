@@ -1,16 +1,16 @@
-//! Headless FisiSlides (the Suíte FisiLab build of DeckCraft).
+//! Headless Slides (the Suíte FisiLab build of DeckCraft).
 //!
 //! ```text
-//! fisislides-cli info FILE                       # slides, titles, layouts (JSON)
-//! fisislides-cli render (FILE | --sample) [--slide N | --all] [--scale S] OUT.png|OUT_DIR
-//! fisislides-cli render-transition FILE --slide N --t T[,T…] [--width PX] OUT.png   # transition frame(s)
-//! fisislides-cli convert IN OUT                  # .deckcraft ⇄ .pptx, outline .txt, .png (first slide)
-//! fisislides-cli run [--in FILE | --sample] [--cmd ID[=JSON]]... [--save OUT] [--export OUT] [--print]
-//! fisislides-cli commands [FILTER]               # list commands (JSON)
-//! fisislides-cli describe ID                     # one command
-//! fisislides-cli app [--port PORT] COMMAND [JSON] | --method METHOD [JSON]   # drive the running app
-//! fisislides-cli mcp [--connect PORT] [--sample] # MCP server over stdio
-//! fisislides-cli links | --version
+//! fisilab-slides-cli info FILE                       # slides, titles, layouts (JSON)
+//! fisilab-slides-cli render (FILE | --sample) [--slide N | --all] [--scale S] OUT.png|OUT_DIR
+//! fisilab-slides-cli render-transition FILE --slide N --t T[,T…] [--width PX] OUT.png   # transition frame(s)
+//! fisilab-slides-cli convert IN OUT                  # .deckcraft ⇄ .pptx, outline .txt, .png (first slide)
+//! fisilab-slides-cli run [--in FILE | --sample] [--cmd ID[=JSON]]... [--save OUT] [--export OUT] [--print]
+//! fisilab-slides-cli commands [FILTER]               # list commands (JSON)
+//! fisilab-slides-cli describe ID                     # one command
+//! fisilab-slides-cli app [--port PORT] COMMAND [JSON] | --method METHOD [JSON]   # drive the running app
+//! fisilab-slides-cli mcp [--connect PORT] [--sample] # MCP server over stdio
+//! fisilab-slides-cli links | --version
 //! ```
 #![deny(clippy::unwrap_used, clippy::expect_used, clippy::panic, clippy::unimplemented, clippy::todo, clippy::unreachable)]
 #![forbid(unsafe_code)]
@@ -27,29 +27,29 @@ macro_rules! outln {
             if e.kind() == std::io::ErrorKind::BrokenPipe {
                 std::process::exit(0);
             }
-            eprintln!("fisislides-cli: can't write to stdout: {e}");
+            eprintln!("fisilab-slides-cli: can't write to stdout: {e}");
             std::process::exit(1);
         }
     }};
 }
 
-const USAGE: &str = "usage: fisislides-cli info FILE
-       fisislides-cli render (FILE | --sample) [--slide N | --all] [--scale S] [--edit] OUT
-       fisislides-cli render-transition FILE --slide N --t T[,T...] [--width PX] OUT.png
-       fisislides-cli convert IN OUT
-       fisislides-cli run [--in FILE | --sample] [--cmd ID[=JSON]]... [--save OUT] [--export OUT] [--print]
-       fisislides-cli commands [FILTER]
-       fisislides-cli describe COMMAND
-       fisislides-cli app [--port PORT] COMMAND [JSON] | --method METHOD [JSON]
-       fisislides-cli mcp [--connect PORT] [--sample]
-       fisislides-cli links | --version";
+const USAGE: &str = "usage: fisilab-slides-cli info FILE
+       fisilab-slides-cli render (FILE | --sample) [--slide N | --all] [--scale S] [--edit] OUT
+       fisilab-slides-cli render-transition FILE --slide N --t T[,T...] [--width PX] OUT.png
+       fisilab-slides-cli convert IN OUT
+       fisilab-slides-cli run [--in FILE | --sample] [--cmd ID[=JSON]]... [--save OUT] [--export OUT] [--print]
+       fisilab-slides-cli commands [FILTER]
+       fisilab-slides-cli describe COMMAND
+       fisilab-slides-cli app [--port PORT] COMMAND [JSON] | --method METHOD [JSON]
+       fisilab-slides-cli mcp [--connect PORT] [--sample]
+       fisilab-slides-cli links | --version";
 
 fn main() -> ExitCode {
     let args: Vec<String> = std::env::args().skip(1).collect();
     let rest = args.get(1..).unwrap_or(&[]);
     match args.first().map(String::as_str) {
         Some("--version" | "-V" | "version") => {
-            outln!("fisislides-cli {}", env!("CARGO_PKG_VERSION"));
+            outln!("fisilab-slides-cli {}", env!("CARGO_PKG_VERSION"));
             ExitCode::SUCCESS
         }
         Some("info") => report(info(rest)),
@@ -80,7 +80,7 @@ fn main() -> ExitCode {
             ExitCode::SUCCESS
         }
         _ => {
-            eprintln!("FisiSlides {} — Apresentações (Suíte FisiLab · UFRGS), baseado no DeckCraft\n", env!("CARGO_PKG_VERSION"));
+            eprintln!("Slides {} — Apresentações (Suíte FisiLab · UFRGS), baseado no DeckCraft\n", env!("CARGO_PKG_VERSION"));
             eprintln!("{USAGE}");
             eprintln!("\nSuíte FisiLab: {}  ·  Reportar um problema: {}", deckcraft_engine::links::SUITE, deckcraft_engine::links::ISSUES);
             ExitCode::FAILURE
@@ -92,7 +92,7 @@ fn report(r: Result<(), String>) -> ExitCode {
     match r {
         Ok(()) => ExitCode::SUCCESS,
         Err(e) => {
-            eprintln!("fisislides-cli: {e}");
+            eprintln!("fisilab-slides-cli: {e}");
             ExitCode::FAILURE
         }
     }
@@ -317,7 +317,7 @@ fn app(args: &[String]) -> Result<(), String> {
         }
     }
     let mut r = Remote::connect(&control_addr(&port))
-        .map_err(|e| format!("no FisiSlides app on port {port} ({e}); start it with `fisislides --control {port}`"))?;
+        .map_err(|e| format!("no FisiLab Slides app on port {port} ({e}); start it with `fisilab-slides --control {port}`"))?;
     let parse = |s: Option<&String>| -> Result<Value, String> {
         s.map(|j| serde_json::from_str(j).map_err(|e| format!("bad JSON: {e}"))).transpose().map(|v| v.unwrap_or(json!({})))
     };

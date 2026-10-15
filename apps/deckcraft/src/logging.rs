@@ -3,8 +3,8 @@
 //! Without a logger every `log::warn!`/`log::error!` in the workspace (the crash guard's panic
 //! report, a failed crash-recovery save, PowerPoint parts that were skipped on import, audio output
 //! problems) vanished. A launch from a desktop menu has no terminal, so the file is what a bug report
-//! can attach: `<settings dir>/logs/fisislides.log`, beside `ui.json` and `prefs.json`. Each start
-//! moves the previous log to `fisislides.1.log` (and that one to `.2`), so the log of a run that
+//! can attach: `<settings dir>/logs/fisilab-slides.log`, beside `ui.json` and `prefs.json`. Each start
+//! moves the previous log to `fisilab-slides.1.log` (and that one to `.2`), so the log of a run that
 //! crashed survives the next launch.
 //!
 //! Levels: `info` for DeckCraft's own crates, `warn` for everything else (wgpu and naga are
@@ -29,17 +29,17 @@ use std::time::SystemTime;
 use log::LevelFilter;
 
 /// The current log file's name inside the log directory.
-pub const LOG_FILE: &str = "fisislides.log";
+pub const LOG_FILE: &str = "fisilab-slides.log";
 /// The log directory inside the settings directory.
 pub const LOG_DIR: &str = "logs";
-/// How many previous logs are kept (`fisislides.1.log` … `fisislides.<KEEP>.log`).
+/// How many previous logs are kept (`fisilab-slides.1.log` … `fisilab-slides.<KEEP>.log`).
 pub const KEEP: usize = 2;
 /// The log file stops growing past this size (a runaway warning can't fill the disk).
 pub const MAX_FILE_BYTES: u64 = 16 * 1024 * 1024;
 /// Records kept in memory until the log file is attached.
 pub const MAX_PENDING: usize = 512;
 /// The built-in filter when `RUST_LOG` is unset or empty.
-pub const DEFAULT_FILTER: &str = "warn,deckcraft*=info,fisislides*=info";
+pub const DEFAULT_FILTER: &str = "warn,deckcraft*=info,fisilab_slides*=info";
 
 /// Per-target level filter parsed from env_logger-style directives.
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -121,7 +121,7 @@ fn civil_from_days(days: u64) -> (u64, u64, u64) {
 }
 
 fn numbered(dir: &Path, n: usize) -> PathBuf {
-    if n == 0 { dir.join(LOG_FILE) } else { dir.join(format!("fisislides.{n}.log")) }
+    if n == 0 { dir.join(LOG_FILE) } else { dir.join(format!("fisilab-slides.{n}.log")) }
 }
 
 /// Shift the previous logs up one (`.log` → `.1.log` → … → `.<KEEP>.log`, the oldest dropped)
@@ -314,7 +314,7 @@ mod tests {
         let f = Filter::parse(DEFAULT_FILTER);
         assert_eq!(f.level_for("deckcraft"), LevelFilter::Info);
         assert_eq!(f.level_for("deckcraft::audio"), LevelFilter::Info);
-        assert_eq!(f.level_for("fisislides::audio"), LevelFilter::Info, "the renamed binary's own records");
+        assert_eq!(f.level_for("fisilab_slides::audio"), LevelFilter::Info, "the renamed binary's own records");
         assert_eq!(f.level_for("deckcraft_engine::guard"), LevelFilter::Info);
         assert_eq!(f.level_for("deckcraft_pptx::read"), LevelFilter::Info);
         assert_eq!(f.level_for("wgpu_core::device"), LevelFilter::Warn);
@@ -402,9 +402,9 @@ mod tests {
             std::fs::write(&path, format!("run {run}")).expect("write");
         }
         assert_eq!(read(&dir.join(LOG_FILE)), "run 4");
-        assert_eq!(read(&dir.join("fisislides.1.log")), "run 3");
-        assert_eq!(read(&dir.join("fisislides.2.log")), "run 2");
-        assert!(!dir.join("fisislides.3.log").exists(), "only {KEEP} old logs are kept");
+        assert_eq!(read(&dir.join("fisilab-slides.1.log")), "run 3");
+        assert_eq!(read(&dir.join("fisilab-slides.2.log")), "run 2");
+        assert!(!dir.join("fisilab-slides.3.log").exists(), "only {KEEP} old logs are kept");
         let _ = std::fs::remove_dir_all(&dir);
     }
 
@@ -513,7 +513,7 @@ mod tests {
         // A second launch rotates: the first log becomes `.1`.
         let second = AppLogger::new(Filter::parse(DEFAULT_FILTER), false);
         assert_eq!(second.attach_dir(&dir).expect("attach again"), dir.join(LOG_FILE));
-        assert_eq!(read(&dir.join("fisislides.1.log")), text);
+        assert_eq!(read(&dir.join("fisilab-slides.1.log")), text);
         let _ = std::fs::remove_dir_all(&dir);
     }
 

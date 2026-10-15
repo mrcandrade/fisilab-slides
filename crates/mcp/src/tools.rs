@@ -60,7 +60,7 @@ fn tool(name: &str, title: &str, desc: &str, schema: Value, read_only: bool) -> 
     json!({"name": name, "title": title, "description": desc, "inputSchema": schema, "annotations": {"title": title, "readOnlyHint": read_only, "openWorldHint": false}})
 }
 
-const APP_ONLY: &str = " Desktop app only (`fisislides-cli mcp --connect PORT`).";
+const APP_ONLY: &str = " Desktop app only (`fisilab-slides-cli mcp --connect PORT`).";
 
 pub fn tool_definitions() -> Vec<Value> {
     vec![
@@ -94,7 +94,7 @@ pub fn tool_definitions() -> Vec<Value> {
         tool(
             "new_presentation",
             "New presentation",
-            "Start a new presentation (one title slide). Optional theme: FisiSlides, Harbor, Ember, Meadow, Nocturne, Paper, Coral Reef, Slate.",
+            "Start a new presentation (one title slide). Optional theme: FisiLab Slides, Harbor, Ember, Meadow, Nocturne, Paper, Coral Reef, Slate.",
             obj(json!({"theme": string("Theme name"), "blank": boolean("No first slide")}), &[]),
             false,
         ),
@@ -268,7 +268,7 @@ pub fn tool_definitions() -> Vec<Value> {
             obj(json!({"text": string("Text")}), &["text"]),
             false,
         ),
-        tool("screenshot", "Screenshot", &format!("Screenshot of the whole FisiSlides window (UI included).{APP_ONLY}"), obj(json!({}), &[]), true),
+        tool("screenshot", "Screenshot", &format!("Screenshot of the whole FisiLab Slides window (UI included).{APP_ONLY}"), obj(json!({}), &[]), true),
         tool(
             "call_app",
             "Call app method",
