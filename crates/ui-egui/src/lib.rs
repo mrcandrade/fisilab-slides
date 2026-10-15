@@ -164,7 +164,7 @@ pub const UI_COMMANDS: &[(&str, &str, Option<&str>, &str)] = &[
     ("view.tab", "Ribbon Tab", None, "{tab}"),
     ("view.collapseRibbon", "Collapse the Ribbon", Some("Cmd+F1"), "{}"),
     ("view.dark", "Dark Mode", None, "{on?: bool}"),
-    ("view.theme", "Tema da interface", None, "{theme: ufrgsNoite|ufrgsDia|light|dark}"),
+    ("view.theme", "Tema da interface", None, "{theme: dark|light|noite|dia}"),
     ("view.grayscale", "Grayscale", None, "{on?: bool}"),
     ("show.start", "Slide Show", Some("F5"), "{from?: index}"),
     ("show.presenter", "Presenter View", None, "{on?: bool}"),
@@ -507,8 +507,7 @@ impl SlideApp {
             }
             "view.collapseRibbon" => self.ui.ribbon_collapsed = !self.ui.ribbon_collapsed,
             "view.dark" => {
-                // Dark or light within the current theme's family (UFRGS Noite/Dia, or the
-                // original dark/light).
+                // Dark or light within the current theme's family (Noite/Dia).
                 let on = self.flag(p, self.ui.brightness.is_dark());
                 self.ui.brightness = self.ui.brightness.with_dark(on);
                 self.restyle = true;
@@ -1368,26 +1367,24 @@ mod tests {
         assert!(harness.query_by_label_contains("Alternativa livre ao Microsoft PowerPoint").is_some());
     }
 
-    /// The interface themes: UFRGS Noite by default; Dark Mode switches within the theme's family;
-    /// `view.theme` picks any of them.
+    /// The interface themes: "Dia" (light) by default; Dark Mode toggles Noite/Dia; `view.theme`
+    /// picks either by id or name.
     #[test]
-    fn theme_commands_switch_between_the_suite_and_original_themes() {
+    fn theme_commands_switch_between_noite_and_dia() {
         use theme::Brightness;
         let mut app = SlideApp::new(Session::with_new(), Services::default());
-        assert_eq!(app.ui.brightness, Brightness::UfrgsNoite);
-        app.run("view.dark", json!({})).unwrap();
-        assert_eq!(app.ui.brightness, Brightness::UfrgsDia);
-        app.run("view.dark", json!({"on": true})).unwrap();
-        assert_eq!(app.ui.brightness, Brightness::UfrgsNoite);
-        assert_eq!(app.run("view.theme", json!({"theme": "light"})).unwrap()["theme"], "light");
+        assert_eq!(app.ui.brightness, Brightness::Light);
         app.run("view.dark", json!({})).unwrap();
         assert_eq!(app.ui.brightness, Brightness::Dark);
-        app.run("view.theme", json!({"theme": "UFRGS Dia"})).unwrap();
-        assert_eq!(app.ui.brightness, Brightness::UfrgsDia);
+        app.run("view.dark", json!({"on": false})).unwrap();
+        assert_eq!(app.ui.brightness, Brightness::Light);
+        assert_eq!(app.run("view.theme", json!({"theme": "Noite"})).unwrap()["theme"], "dark");
+        assert_eq!(app.ui.brightness, Brightness::Dark);
+        app.run("view.theme", json!({"theme": "dia"})).unwrap();
+        assert_eq!(app.ui.brightness, Brightness::Light);
         assert!(app.run("view.theme", json!({"theme": "neon"})).is_err());
-        // An old ui.json without the field, or from the original app, still loads.
         let ui: UiState = serde_json::from_str("{}").unwrap();
-        assert_eq!(ui.brightness, Brightness::UfrgsNoite);
+        assert_eq!(ui.brightness, Brightness::Light);
         let ui: UiState = serde_json::from_str(r#"{"brightness": "dark"}"#).unwrap();
         assert_eq!(ui.brightness, Brightness::Dark);
     }

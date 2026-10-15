@@ -824,7 +824,7 @@ pub fn suite_links(ui: &mut Ui) -> bool {
     clicked
 }
 
-/// The interface theme picker (UFRGS Noite, UFRGS Dia, and the original light and dark).
+/// The interface theme picker (Noite and Dia).
 pub fn theme_picker(app: &mut SlideApp, ui: &mut Ui, salt: &str, width: f32) {
     let cur = app.ui.brightness;
     egui::ComboBox::from_id_salt(salt).width(width).selected_text(cur.label()).show_ui(ui, |ui| {

@@ -49,18 +49,16 @@ do projeto original (MIT OR Apache-2.0). Este arquivo lista o que mudou e por qu
   `FisiLab.Slides.Presentation` e pasta de instalação `Program Files\Suite FisiLab\Slides`, a mesma
   do instalador oficial da suíte.
 
-## Cores: temas "UFRGS Noite" e "UFRGS Dia"
+## Cores: paleta original, com temas "Noite" e "Dia"
 
-- `crates/ui-egui/src/theme.rs` ganhou os temas **UFRGS Noite** (escuro, id `ufrgsNoite`) e
-  **UFRGS Dia** (claro, id `ufrgsDia`), montados a partir da paleta da marca
-  (`fisilab_brand::palette::NOITE`/`DIA`). **UFRGS Noite é o padrão** numa instalação nova.
-- Os temas originais (claro e escuro) continuam disponíveis como "Claro (original)" e "Escuro
-  (original)". O botão Modo Escuro alterna entre o claro e o escuro da mesma família; o novo
-  comando `view.theme` e os seletores de tema (Arquivo › Conta e Preferências) escolhem qualquer
-  um dos quatro.
-- Só as cores mudaram: cantos, espaçamentos e tamanhos são os do DeckCraft. Cores que ficam sobre
-  o próprio slide (alças de seleção, cursor) e as miniaturas de transições e animações continuam
-  neutras.
+- A paleta é a original do DeckCraft. Os dois temas dela aparecem com os nomes **Noite** (escuro,
+  o `dark` original) e **Dia** (claro, o `light` original, que continua o padrão numa instalação
+  nova). Os ids salvos em `ui.json` seguem `dark`/`light`.
+- O botão Modo Escuro alterna entre Noite e Dia; o comando `view.theme` e os seletores de tema
+  (Arquivo › Conta e Preferências) escolhem um dos dois (aceita também `noite`/`dia`,
+  `night`/`day`).
+- Nada de cores da marca da suíte no tema: a paleta da marca só aparece na tela de abertura e na
+  janela "Sobre a Suíte FisiLab".
 
 ## Suíte FisiLab
 
