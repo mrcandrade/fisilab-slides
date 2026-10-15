@@ -100,3 +100,5 @@ do projeto original (MIT OR Apache-2.0). Este arquivo lista o que mudou e por qu
 - `LICENSE-MIT`, `LICENSE-APACHE` e `ATTRIBUTION.md` não foram alterados.
 - O empacotamento para Linux, macOS e FreeBSD só teve os links trocados; os nomes de arquivo e o
   identificador desses pacotes continuam os do DeckCraft (a suíte distribui só para Windows).
+- O empacotamento para macOS (DMG universal) usa os novos nomes, o ícone e o identificador da suíte
+  (`Slides.app`, `br.ufrgs.fisilab.slides`).
