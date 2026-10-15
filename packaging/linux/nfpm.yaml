@@ -3,7 +3,7 @@
 # exports VERSION and NFPM_ARCH.
 #
 #   nfpm package -f packaging/linux/nfpm.yaml -p deb -t dist/release/
-name: deckcraft
+name: fisilab-slides
 arch: ${NFPM_ARCH}
 platform: linux
 version: ${VERSION}
@@ -12,16 +12,17 @@ version_schema: semver
 release: 1
 section: editors
 priority: optional
-maintainer: ${DECKCRAFT_MAINTAINER}
-vendor: Learning Machines LLC
-homepage: https://github.com/mrcandrade/larfic/tree/main/suite-fisilab
+maintainer: FisiLab - LARFIC/UFRGS <mrcandrade@users.noreply.github.com>
+vendor: FisiLab - LARFIC/UFRGS
+homepage: https://github.com/mrcandrade/larfic
 license: MIT OR Apache-2.0
 description: |-
-  Open-source, native presentation app that works the way PowerPoint users
-  expect. Themes, layouts, shapes, pictures, tables, charts, transitions and
-  animations; opens and saves PowerPoint (.pptx) files; full-screen slide show
-  with presenter view; GPU rendering (wgpu).
-  Includes deckcraft-cli, a headless renderer and command runner.
+  Slides, da Suíte FisiLab (alternativa livre): aplicativo nativo de apresentações
+  que funciona como o PowerPoint. Temas, layouts, formas, imagens, tabelas, gráficos,
+  transições e animações; abre e salva arquivos do PowerPoint (.pptx); apresentação em
+  tela cheia com modo do apresentador; renderização por GPU (wgpu).
+  Inclui o fisilab-slides-cli, um renderizador e executor de comandos sem janela.
+  Baseado no DeckCraft, do ArtCraft Team e contribuidores (MIT ou Apache 2.0).
 
 # The binaries link only glibc and libgcc_s directly. Windowing (X11/Wayland, xkbcommon) and the
 # GPU (Vulkan, EGL/GL) are loaded at runtime, so they are dependencies/recommendations here
@@ -58,11 +59,11 @@ overrides:
       - xdg-desktop-portal
 
 contents:
-  - src: ${STAGE}/usr/bin/deckcraft
-    dst: /usr/bin/deckcraft
+  - src: ${STAGE}/usr/bin/fisilab-slides
+    dst: /usr/bin/fisilab-slides
     file_info: { mode: 0755 }
-  - src: ${STAGE}/usr/bin/deckcraft-cli
-    dst: /usr/bin/deckcraft-cli
+  - src: ${STAGE}/usr/bin/fisilab-slides-cli
+    dst: /usr/bin/fisilab-slides-cli
     file_info: { mode: 0755 }
   - src: ${STAGE}/usr/share/
     dst: /usr/share/

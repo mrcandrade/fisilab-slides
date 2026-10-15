@@ -1,14 +1,14 @@
 [Desktop Entry]
 Type=Application
-Name=DeckCraft
-GenericName=Presentation
-Comment=Create and present slide decks
-Exec=deckcraft %F
-TryExec=deckcraft
-Icon=ai.storyteller.deckcraft
+Name=Slides
+GenericName=Apresentações
+Comment=Apresentações — Suíte FisiLab (alternativa livre)
+Exec=fisilab-slides %F
+TryExec=fisilab-slides
+Icon=br.ufrgs.fisilab.slides
 Terminal=false
 StartupNotify=true
-StartupWMClass=ai.storyteller.deckcraft
+StartupWMClass=br.ufrgs.fisilab.slides
 Categories=Office;Presentation;
 MimeType=application/x-deckcraft;application/vnd.openxmlformats-officedocument.presentationml.presentation;application/vnd.openxmlformats-officedocument.presentationml.template;application/vnd.openxmlformats-officedocument.presentationml.slideshow;
-Keywords=presentation;slides;slide show;deck;pptx;keynote;powerpoint;
+Keywords=presentation;slides;slide show;deck;pptx;keynote;powerpoint;apresentação;apresentações;

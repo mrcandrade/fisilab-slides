@@ -7,6 +7,7 @@ do projeto original (MIT OR Apache-2.0). Este arquivo lista o que mudou e por qu
 
 ## Nome e marca
 
+- **Empacotamento Linux (AppImage e .deb)**: usa os nomes, ícones e ids da suíte (`FisiLab-Slides-<versão>-x86_64.AppImage`, `fisilab-slides_<versão>_amd64.deb`, id `br.ufrgs.fisilab.slides`, binários `fisilab-slides` e `fisilab-slides-cli`).
 - **Nome visível**: "DeckCraft" passou a ser "Slides" na interface — título da janela, nome do
   app no `run_native`, tela inicial (Arquivo › Página Inicial), Arquivo › Conta, janela "About
   Slides", título do Modo do Apresentador, mensagens de status e de erro, texto da ajuda e da
